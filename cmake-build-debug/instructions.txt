@@ -1,0 +1,3 @@
+use("MongolDB");
+destroy("MongolDB");
+add(1, 2);
