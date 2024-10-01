@@ -67,6 +67,8 @@ int countCharInLine(FILE *fp, int line){
     return count;
 }
 
+// ------------------------------------------------------------------------ //
+
 int skipToEndLineChars(FILE * fp){
     char var = fgetc(fp);
     while (var != EOF && (var == '\n' || var == '\r' || var == '\0')) {
@@ -85,4 +87,100 @@ int skipToEndLineChars(FILE * fp){
         return EOF;
     }
     return 0;
+}
+
+// ------------------------------------------------------------------------ //
+
+char **readInstructionFile(int *rows, int *columns) {
+    FILE *fp = fopen("instructions.txt", "r");
+    if (fp == NULL) {
+        Log("ERROR : Impossible to open the 'instructions' file");
+        return NULL;
+    }
+
+    int lines = countLines(fp);
+    printf("lines: %d\n", lines);
+    if (lines <= 0) {
+        Log("ERROR : File is empty or couldn't count lines");
+        fclose(fp);
+        return NULL;
+    }
+
+    *rows = lines;
+    char **array = calloc(lines, sizeof(char *));
+    if (array == NULL) {
+        Log("ERROR : Memory allocation failed for rows");
+        fclose(fp);
+        return NULL;
+    }
+
+    rewind(fp);
+    *columns = 0;
+
+    for (int i = 0; i < lines; i++) {
+        // Skip to the beginning of the next line
+
+        printf("----------------------\n");
+        int charInLine = countCharInLine(fp, i); // Always count from current position
+        printf("Line %d: %d characters\n", i + 1, charInLine);
+        printf("----------------------\n");
+
+        if (charInLine == -1) {
+            Log("ERROR : Impossible to count the char in the line");
+            freeDoubleArray((void **)array, i);
+            fclose(fp);
+            return NULL;
+        }
+
+        if (charInLine > *columns) {
+            *columns = charInLine;
+        }
+
+        array[i] = malloc((charInLine + 2) * sizeof(char)); // +2 for '\n' and '\0'
+        if (array[i] == NULL) {
+            Log("ERROR : Memory allocation failed for columns");
+            freeDoubleArray((void **)array, i);
+            fclose(fp);
+            return NULL;
+        }
+
+        skipToEndLineChars(fp);
+        // Read the line
+        printf("Ftell avant error %ld\n", ftell(fp));
+
+        if (feof(fp)) {
+            // Si on est à la fin du fichier, on recule de charInLine
+            if (fseek(fp, -charInLine, SEEK_CUR) != 0) {
+                Log("ERROR : Failed to set file position");
+                freeDoubleArray((void **)array, i + 1);
+                fclose(fp);
+                return NULL;
+            }
+        } else {
+            // Sinon, on recule de charInLine + 2 pour les \r et \n
+            if (fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
+                Log("ERROR : Failed to set file position");
+                freeDoubleArray((void **)array, i + 1);
+                fclose(fp);
+                return NULL;
+            }
+        }
+
+        printf("Ftell2 avant error %ld\n", ftell(fp));
+        if (fgets(array[i], charInLine + 2, fp) == NULL) {
+            Log("ERROR : Failed to read line from file");
+            freeDoubleArray((void **)array, i + 1);
+            fclose(fp);
+            return NULL;
+        }
+
+        // Retire les \r et \n de fin de ligne et met un \0
+        size_t len = strlen(array[i]);
+        if (len > 0 && (array[i][len - 1] == '\n' || array[i][len - 1] == '\r')) {
+            array[i][len - 1] = '\0';
+        }
+    }
+
+    fclose(fp);
+    return array;
 }
