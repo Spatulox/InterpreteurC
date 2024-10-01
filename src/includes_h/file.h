@@ -5,7 +5,8 @@
 #ifndef INTERPRETEURC_FILE_H
 #define INTERPRETEURC_FILE_H
 
-int countLines();
-int countCharInLine(int line);
+int countLines(FILE * fp);
+int countCharInLine(FILE *fp, int line);
+int skipToEndLineChars(FILE * fp);
 
 #endif //INTERPRETEURC_FILE_H

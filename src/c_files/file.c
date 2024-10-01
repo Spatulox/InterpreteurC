@@ -2,15 +2,18 @@
 // Created by M78st on 01/10/2024.
 //
 #include <stdio.h>
+#include <string.h>
+
 #include "../includes_h/file.h"
+#include "../includes_h/log.h"
 
 // ------------------------------------------------------------------------ //
 /**
  * Function which send the number of line of the instructions.txt file
  * @return
  */
-int countLines(){
-    FILE *fp = fopen("instructions.txt", "rb");
+int countLines(FILE * fp){
+    //FILE *fp = fopen("instructions.txt", "rb");
     if(fp == NULL){
         printf("ERROR : Impossible d'ouvrir le fichier");
         return -1;
@@ -23,7 +26,6 @@ int countLines(){
         }
         var = fgetc(fp);
     }
-    fclose(fp);
     // Last line is not count inside the loop;
     return ++count;
 }
@@ -34,32 +36,53 @@ int countLines(){
  * @param line
  * @return
  */
-int countCharInLine(int line){
-    if(line == 0){
-        Log("ERROR : You need to give a valid line ( 1+ )");
-        return -1;
-    }
-    FILE *fp = fopen("instructions.txt", "r");
+int countCharInLine(FILE *fp, int line){
+    rewind(fp);
     if(fp == NULL){
         printf("ERROR : Impossible d'ouvrir le fichier");
         return -1;
     }
-    char buff[1000];
-    // lines - 1 because the file start at line 1 and the user want to start at line 1;
-    for (int i = 0; i < line-1; ++i) {
-        if (fgets(buff, 1000, fp) == NULL) {
-            fclose(fp);
-            return -1;  // La ligne demandée n'existe pas
+
+    // Jump to the right line
+    char var = fgetc(fp);
+    for (int i = 0; i < line; i++) {
+        printf("Skipping line %d : ", i);
+        while (var != '\n'){
+            printf("%c", var);
+            var = fgetc(fp);
+        }
+        printf("\n");
+        var = fgetc(fp); // Pour incrémenter si je reste dans la boucle
+    }
+    fseek(fp, -1, SEEK_CUR);
+
+    // Count les charactères de la ligne
+    int count = 0;
+    int ch = fgetc(fp);
+    while (ch != EOF && ch != '\n' && ch != '\r' && ch != '\0') {
+        ch = fgetc(fp);
+        count++;
+    }
+
+    return count;
+}
+
+int skipToEndLineChars(FILE * fp){
+    char var = fgetc(fp);
+    while (var != EOF && (var == '\n' || var == '\r' || var == '\0')) {
+        var = fgetc(fp);
+        //While char != \n || \r || \0 => avance le cursor
+    }
+
+    if (var != EOF) {
+        if (fseek(fp, -1, SEEK_CUR) != 0) {
+            Log("ERROR : Problème lors du recul du curseur");
+            return -1;
         }
     }
 
-    int count = 0;
-    int var = fgetc(fp);
-    while ((var = fgetc(fp)) != EOF && var != '\n' && var != '\r'){ // Retour chariot de windows
-        count ++;
+    if(var == EOF){
+        return EOF;
     }
-    fclose(fp);
-
-    // Last line is not count inside the loop;
-    return ++count;
+    return 0;
 }
