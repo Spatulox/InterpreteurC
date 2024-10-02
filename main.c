@@ -14,6 +14,7 @@ int readAndExecuteInstructionFile(){
     char ** array = readInstructionFile(&rows, &columns);
     //printf("rows:%d\n", rows);
     for (int i = 0; i < rows; ++i) {
+        // executeInstruction(array[i]);
         printf("%s\n", array[i]);
     }
 
@@ -29,6 +30,9 @@ int readAndExecuteInstructionFile(){
 
 int askingUserForInstructions() {
     Log("INFO : Asking user for instructions");
+
+    //scanf
+    //executeInstruction(var);
     return 0;
 }
 
