@@ -69,6 +69,6 @@ int main() {
 
     }while(mainMenu != '0');
 
-    Log("INFO : Stopping program");
+    Log("INFO : Stopping program\n");
     return 0;
 }

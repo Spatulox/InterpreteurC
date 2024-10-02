@@ -4,7 +4,8 @@
 # Build
 cmake-build-debug/*
 !cmake-build-debug/instructions.txt
-
+build/
+prog
 
 # Prerequisites
 *.d
