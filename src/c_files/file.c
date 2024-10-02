@@ -92,7 +92,6 @@ int skipToEndLineChars(FILE * fp){
     char var = fgetc(fp);
     while (var != EOF && (var == '\n' || var == '\r' || var == '\0')) {
         var = fgetc(fp);
-        //While char != \n || \r || \0 => avance le cursor
     }
 
     if (var != EOF) {
@@ -118,7 +117,7 @@ char **readInstructionFile(int *rows, int *columns) {
     }
 
     int lines = countLines(fp);
-    printf("lines: %d\n", lines);
+    //printf("lines: %d\n", lines);
     if (lines <= 0) {
         Log("ERROR : File is empty or couldn't count lines");
         fclose(fp);
@@ -139,17 +138,20 @@ char **readInstructionFile(int *rows, int *columns) {
     for (int i = 0; i < lines; i++) {
         // Skip to the beginning of the next line
 
-        printf("----------------------\n");
+        //printf("----------------------\n");
         int charInLine = countCharInLine(fp, i); // Always count from current position
-        printf("Line %d: %d characters\n", i + 1, charInLine);
-        printf("----------------------\n");
+        //printf("Line %d: %d characters\n", i + 1, charInLine);
+        //printf("----------------------\n");
 
+        //printf("charInLine : %d\n", charInLine);
+        // Sometimes the compilator do some shitty things here and say "Condition is always true", which is false :/
         if (charInLine == -1) {
             Log("ERROR : Impossible to count the char in the line");
             freeDoubleArray((void **)array, i);
             fclose(fp);
             return NULL;
         }
+
 
         if (charInLine > *columns) {
             *columns = charInLine;
@@ -165,7 +167,6 @@ char **readInstructionFile(int *rows, int *columns) {
 
         skipToEndLineChars(fp);
         // Read the line
-        printf("Ftell avant error %ld\n", ftell(fp));
 
         if (feof(fp)) {
             // Si on est à la fin du fichier, on recule de charInLine
@@ -185,7 +186,6 @@ char **readInstructionFile(int *rows, int *columns) {
             }
         }
 
-        printf("Ftell2 avant error %ld\n", ftell(fp));
         if (fgets(array[i], charInLine + 2, fp) == NULL) {
             Log("ERROR : Failed to read line from file");
             freeDoubleArray((void **)array, i + 1);
