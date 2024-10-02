@@ -4,6 +4,8 @@
 
 #include "./src/includes_h/log.h"
 #include "./src/includes_h/file.h"
+#include "./src/includes_h/structs.h"
+#include "./src/includes_h/manage_list.h"
 
 // ------------------------------------------------------------------------ //
 
@@ -25,14 +27,34 @@ int readAndExecuteInstructionFile(){
     return 0;
 }
 
-
+void executeInstruction(char * instruction){
+    printf("%s", instruction);
+}
 // ------------------------------------------------------------------------ //
 
 int askingUserForInstructions() {
     Log("INFO : Asking user for instructions");
 
+    char userInput[1000];
+    fflush(stdin);
+    scanf("%s", userInput);
+
+    ListVariable * varStorage = malloc(sizeof (Variable) * 1);
+
+
+    if(varStorage == NULL){
+        Log("Impossible to allocate memory for varStorage");
+        return -1;
+    }
+
+    //lexer()
+    //parse()
     //scanf
     //executeInstruction(var);
+
+    executeInstruction(userInput);
+
+    Log("Lecture terminé");
     return 0;
 }
 
