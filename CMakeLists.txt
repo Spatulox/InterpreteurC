@@ -8,4 +8,4 @@ add_executable(
         src/c_files/log.c
         src/includes_h/log.h
         src/c_files/file.c
-        src/includes_h/file.h)
+        src/includes_h/file.h src/includes_h/structs.h src/c_files/manage_list.c src/includes_h/manage_list.h)
