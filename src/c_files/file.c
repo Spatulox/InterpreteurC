@@ -3,9 +3,18 @@
 //
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../includes_h/file.h"
 #include "../includes_h/log.h"
+
+void freeDoubleArray(void **array, int lines){
+    for (int j = 0; j < lines; j++) {
+        free(array[j]);
+    }
+    free(array);
+    array = NULL;
+}
 
 // ------------------------------------------------------------------------ //
 /**
