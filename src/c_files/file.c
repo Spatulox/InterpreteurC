@@ -46,24 +46,29 @@ int countLines(FILE * fp){
  * @return
  */
 int countCharInLine(FILE *fp, int line){
-    rewind(fp);
     if(fp == NULL){
         printf("ERROR : Impossible d'ouvrir le fichier");
         return -1;
     }
+    rewind(fp);
 
     // Jump to the right line
     char var = fgetc(fp);
     for (int i = 0; i < line; i++) {
-        printf("Skipping line %d : ", i);
+        //printf("Skipping line %d : ", i);
         while (var != '\n'){
-            printf("%c", var);
+            if(var == EOF){
+                Log("ERROR : Unexpected end of file :/");
+                return -1;
+            }
             var = fgetc(fp);
         }
-        printf("\n");
         var = fgetc(fp); // Pour incrémenter si je reste dans la boucle
     }
-    fseek(fp, -1, SEEK_CUR);
+    if(fseek(fp, -1, SEEK_CUR) != 0){
+        Log("ERROR : Impossible to move the cursor inside the file");
+        return -1;
+    }
 
     // Count les charactères de la ligne
     int count = 0;
@@ -71,6 +76,11 @@ int countCharInLine(FILE *fp, int line){
     while (ch != EOF && ch != '\n' && ch != '\r' && ch != '\0') {
         ch = fgetc(fp);
         count++;
+    }
+
+    if (ch == EOF && count == 0) {
+        Log("ERROR : Empty line or unexpected end of file");
+        return -1;
     }
 
     return count;
