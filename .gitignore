@@ -3,7 +3,7 @@
 
 # Build
 cmake-build-debug/*
-!cmake-build-debug/instructions.txt
+log.txt
 build/
 prog
 
