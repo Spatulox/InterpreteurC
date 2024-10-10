@@ -11,6 +11,7 @@ set(SOURCES
     main.c
     src/c_files/file.c
     src/c_files/log.c
+    src/c_files/lexer.c
 )
 
 # Output directory for the executable
