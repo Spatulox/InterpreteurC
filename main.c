@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "./src/includes_h/log.h"
-#include "./src/includes_h/file.h"
+#include "includes.h"
+#include "log.h"
+#include "file.h"
+#include "shunting-yard.h"
+#include "lexer.h"
 
 // ------------------------------------------------------------------------ //
 
@@ -31,8 +30,14 @@ int readAndExecuteInstructionFile(){
 int askingUserForInstructions() {
     Log("INFO : Asking user for instructions");
 
-    //scanf
-    //executeInstruction(var);
+    printf("-> ");
+    char instruction[MAX_TOKEN_SIZE -1];
+    scanf("%s", instruction);
+    Token* tokens = lexerCalculator(instruction);
+    if(tokens){
+        tokens = freeAllTokens(tokens);
+    }
+    
     return 0;
 }
 
@@ -42,7 +47,6 @@ int askingUserForInstructions() {
 
 int main() {
     char mainMenu = '0';
-
     do {
         printf("What do you want to do ?\n- 1 : Read the instructions file\n- 2 : Manually enter the instructions\n- 0 : Quit\n");
         fflush(stdin);
