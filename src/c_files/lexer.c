@@ -1,25 +1,33 @@
 //
 // Created by Nab on 10/10/2024.
 //
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../includes_h/lexer.h"
+#include "includes.h"
+#include "lexer.h"
 
-#define MAX_TOKEN_SIZE 100
 
-token* createToken(const char* type, const char* value) {
-    token* newToken = malloc(sizeof(token));
-    newToken->type = strdup(type);
+
+Token* createToken(TokenType type, const char* value) {
+    Token* newToken = malloc(sizeof(Token));
+    newToken->type = NULL;
     newToken->value = strdup(value);
     newToken->nextToken = NULL;
     return newToken;
 }
 
-token* lexerCalculator(char* input) {
-    token *firstToken = NULL;
-    token *currentToken = NULL;
+Token* freeAllTokens(Token* firstToken) {
+    Token* currentToken = firstToken;
+    while (currentToken) {
+        Token* nextToken = currentToken->nextToken;
+        free(currentToken->value);
+        free(currentToken);
+        currentToken = nextToken;
+    }
+    return currentToken;
+}
+
+Token* lexerCalculator(char* input) {
+    Token *firstToken = NULL;
+    Token *currentToken = NULL;
     char buffer[MAX_TOKEN_SIZE];
     int i = 0;
 
@@ -38,7 +46,7 @@ token* lexerCalculator(char* input) {
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';  // Terminer la chaîne
 
-            token *newToken = createToken("variable", buffer);
+            Token *newToken = createToken(VARIABLE , buffer);
             if (!firstToken) {
                 firstToken = newToken;
             } else {
@@ -56,7 +64,7 @@ token* lexerCalculator(char* input) {
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
 
-            token *newToken = createToken("number", buffer);
+            Token *newToken = createToken(NUMBER, buffer);
             if (!firstToken) {
                 firstToken = newToken;
             } else {
@@ -70,7 +78,7 @@ token* lexerCalculator(char* input) {
             buffer[0] = input[i];
             buffer[1] = '\0';
 
-            token *newToken = createToken("operator", buffer);
+            Token *newToken = createToken(OPERATOR, buffer);
             if (!firstToken) {
                 firstToken = newToken;
             } else {
@@ -85,7 +93,7 @@ token* lexerCalculator(char* input) {
             buffer[0] = input[i];
             buffer[1] = '\0';
 
-            token *newToken = createToken("affectation", buffer);
+            Token *newToken = createToken(ASSIGNMENT, buffer);
             if (!firstToken) {
                 firstToken = newToken;
             } else {

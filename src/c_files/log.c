@@ -1,10 +1,8 @@
 //
 // Created by M78st on 01/10/2024.
 //
-#include <time.h>
-#include <stdio.h>
-
-#include "../includes_h/log.h"
+#include "includes.h"
+#include "log.h"
 
 void Log(char *string){
     // Create the time string

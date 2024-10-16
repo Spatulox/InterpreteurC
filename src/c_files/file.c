@@ -1,12 +1,9 @@
 //
 // Created by M78st on 01/10/2024.
 //
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "../includes_h/file.h"
-#include "../includes_h/log.h"
+#include "includes.h"
+#include "file.h"
+#include "log.h"
 
 void freeDoubleArray(void **array, int lines){
     for (int j = 0; j < lines; j++) {
