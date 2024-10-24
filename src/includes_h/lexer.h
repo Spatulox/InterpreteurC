@@ -5,13 +5,21 @@
 #ifndef LEXER_H
 #define LEXER_H
 #define MAX_TOKEN_SIZE 100
-#include "shunting-yard.h"
+
+typedef enum TokenType{
+    DEFAULT,
+    NUMBER,
+    OPERATOR,
+    PARENTHESIS,
+    ASSIGNMENT,
+    VARIABLE,
+} TokenType;
 typedef struct Token {
     TokenType type;
     char *value;
     struct Token *nextToken;
 } Token;
-Token* createToken(const char* type, const char* value);
+Token* createToken(const TokenType type, const char* value);
 Token* freeAllTokens(Token* firstToken);
 Token* lexerCalculator(char* input);
 #endif //LEXER_H

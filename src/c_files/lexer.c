@@ -8,7 +8,7 @@
 
 Token* createToken(TokenType type, const char* value) {
     Token* newToken = malloc(sizeof(Token));
-    newToken->type = NULL;
+    newToken->type = type;
     newToken->value = strdup(value);
     newToken->nextToken = NULL;
     return newToken;

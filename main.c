@@ -2,7 +2,6 @@
 #include "log.h"
 #include "file.h"
 #include "shunting-yard.h"
-#include "lexer.h"
 
 // ------------------------------------------------------------------------ //
 
@@ -27,7 +26,7 @@ int readAndExecuteInstructionFile(){
 
 // ------------------------------------------------------------------------ //
 
-int askingUserForInstructions() {
+int askingUserForInstructions(Node* ast) {
     Log("INFO : Asking user for instructions");
 
     printf("-> ");
@@ -35,6 +34,8 @@ int askingUserForInstructions() {
     scanf("%s", instruction);
     Token* tokens = lexerCalculator(instruction);
     if(tokens){
+        ast = createAstFromTokens(ast, tokens);
+        ast = freeAllNodes(ast);
         tokens = freeAllTokens(tokens);
     }
     
@@ -47,6 +48,7 @@ int askingUserForInstructions() {
 
 int main() {
     char mainMenu = '0';
+    Node* ast = NULL;
     do {
         printf("What do you want to do ?\n- 1 : Read the instructions file\n- 2 : Manually enter the instructions\n- 0 : Quit\n");
         fflush(stdin);
@@ -63,7 +65,7 @@ int main() {
 
             case '2':
                 // Ask the user for the instructions
-                askingUserForInstructions();
+                askingUserForInstructions(ast);
                 break;
 
             default:

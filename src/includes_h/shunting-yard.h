@@ -1,15 +1,13 @@
-typedef enum TokenType {
-    NUMBER,
-    OPERATOR,
-    PARENTHESIS,
-    ASSIGNMENT,
-    VARIABLE,
-}TokenType;
-typedef struct Ast {
+#include "lexer.h"
+typedef struct Node {
     char *value;
     TokenType type;
-    struct Ast *left;
-    struct Ast *right;
-} Ast;
+    struct Node *left;
+    struct Node *right;
+} Node;
 
-Ast* createAst(char *value);
+Node* createNode(char *value);
+
+Node* createAstFromTokens(Node* firstNode, Token* token);
+
+Node* freeAllNodes(Node* firstNode);
