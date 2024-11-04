@@ -43,9 +43,6 @@ int askingUserForInstructions(Node* ast) {
     return 0;
 }
 
-void test_createVariableNode();
-void test_addVariableToList();
-
 // ------------------------------------------------------------------------ //
 
 
