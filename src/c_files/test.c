@@ -30,12 +30,12 @@ void test_createVariableNode() {
     ListVariable* intNode = createVariableNode(INT, intValue, "intVar");
 
     assert(intNode != NULL);
-    assert(intNode->TYPE == INT);
-    assert(intNode->value.intValue == 42);
-    assert(strcmp(intNode->varName, "intVar") == 0);
+    assert(intNode->variable.TYPE == INT);
+    assert(intNode->variable.value.intValue == 42);
+    assert(strcmp(intNode->variable.varName, "intVar") == 0);
     assert(intNode->next == NULL);
 
-    free(intNode->varName);
+    free(intNode->variable.varName);
     free(intNode);
 
     // Test CHAR
@@ -44,12 +44,12 @@ void test_createVariableNode() {
     ListVariable* charNode = createVariableNode(CHAR, charValue, "charVar");
 
     assert(charNode != NULL);
-    assert(charNode->TYPE == CHAR);
-    assert(strcmp(charNode->value.stringValue, "test") == 0);
-    assert(strcmp(charNode->varName, "charVar") == 0);
+    assert(charNode->variable.TYPE == CHAR);
+    assert(strcmp(charNode->variable.value.stringValue, "test") == 0);
+    assert(strcmp(charNode->variable.varName, "charVar") == 0);
     assert(charNode->next == NULL);
 
-    free(charNode->varName);
+    free(charNode->variable.varName);
     free(charNode);
 
     printf("createVariableNode test passed!\n");
@@ -66,9 +66,9 @@ void test_addVariableToList() {
     addVariableToList(&list, INT, intValue, "intVar");
 
     assert(list != NULL);
-    assert(list->TYPE == INT);
-    assert(list->value.intValue == 10);
-    assert(strcmp(list->varName, "intVar") == 0);
+    assert(list->variable.TYPE == INT);
+    assert(list->variable.value.intValue == 10);
+    assert(strcmp(list->variable.varName, "intVar") == 0);
     assert(list->next == NULL);
 
     // add a CHAR
@@ -77,13 +77,13 @@ void test_addVariableToList() {
     addVariableToList(&list, CHAR, charValue, "charVar");
 
     assert(list != NULL);
-    assert(list->TYPE == CHAR);
-    assert(strcmp(list->value.stringValue, "hello") == 0);
-    assert(strcmp(list->varName, "charVar") == 0);
+    assert(list->variable.TYPE == CHAR);
+    assert(strcmp(list->variable.value.stringValue, "hello") == 0);
+    assert(strcmp(list->variable.varName, "charVar") == 0);
     assert(list->next != NULL);
-    assert(((ListVariable*)list->next)->TYPE == INT);
-    assert(((ListVariable*)list->next)->value.intValue == 10);
-    assert(strcmp(((ListVariable*)list->next)->varName, "intVar") == 0);
+    assert(((ListVariable*)list->next)->variable.TYPE == INT);
+    assert(((ListVariable*)list->next)->variable.value.intValue == 10);
+    assert(strcmp(((ListVariable*)list->next)->variable.varName, "intVar") == 0);
 
     freeVariableList(list);
 
@@ -109,16 +109,16 @@ void test_searchVariableInList() {
     // Test 1: Recherche d'une variable existante (INT)
     ListVariable* result1 = searchVariableInList(list, "intVar1");
     assert(result1 != NULL);
-    assert(result1->TYPE == INT);
-    assert(result1->value.intValue == 10);
-    assert(strcmp(result1->varName, "intVar1") == 0);
+    assert(result1->variable.TYPE == INT);
+    assert(result1->variable.value.intValue == 10);
+    assert(strcmp(result1->variable.varName, "intVar1") == 0);
 
     // Test 2: Recherche d'une variable existante (CHAR)
     ListVariable* result2 = searchVariableInList(list, "charVar");
     assert(result2 != NULL);
-    assert(result2->TYPE == CHAR);
-    assert(strcmp(result2->value.stringValue, "hello") == 0);
-    assert(strcmp(result2->varName, "charVar") == 0);
+    assert(result2->variable.TYPE == CHAR);
+    assert(strcmp(result2->variable.value.stringValue, "hello") == 0);
+    assert(strcmp(result2->variable.varName, "charVar") == 0);
 
     // Test 3: Recherche d'une variable inexistante
     ListVariable* result3 = searchVariableInList(list, "nonExistentVar");
