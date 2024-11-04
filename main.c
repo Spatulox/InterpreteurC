@@ -1,11 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "includes.h"
+#include "log.h"
+#include "file.h"
+#include "shunting-yard.h"
 
-#include "./src/includes_h/log.h"
-#include "./src/includes_h/file.h"
 #include "./src/includes_h/structs.h"
-#include "./src/includes_h/test.h"
-
 // ------------------------------------------------------------------------ //
 
 int readAndExecuteInstructionFile(){
@@ -31,29 +29,19 @@ void executeInstruction(char * instruction){
 }
 // ------------------------------------------------------------------------ //
 
-int askingUserForInstructions() {
+int askingUserForInstructions(Node* ast) {
     Log("INFO : Asking user for instructions");
 
-    char userInput[1000];
-    fflush(stdin);
-    scanf("%s", userInput);
-
-    ListVariable * varStorage = malloc(sizeof (Variable) * 1);
-
-
-    if(varStorage == NULL){
-        Log("Impossible to allocate memory for varStorage");
-        return -1;
+    printf("-> ");
+    char instruction[MAX_TOKEN_SIZE -1];
+    scanf("%s", instruction);
+    Token* tokens = lexerCalculator(instruction);
+    if(tokens){
+        ast = createAstFromTokens(ast, tokens);
+        ast = freeAllNodes(ast);
+        tokens = freeAllTokens(tokens);
     }
-
-    //lexer()
-    //parse()
-    //scanf
-    //executeInstruction(var);
-
-    executeInstruction(userInput);
-
-    Log("Lecture terminé");
+    
     return 0;
 }
 
@@ -71,7 +59,7 @@ void test_addVariableToList();
 int main() {
 
     char mainMenu = '0';
-
+    Node* ast = NULL;
     do {
         printf("What do you want to do ?\n- 1 : Read the instructions file\n- 2 : Manually enter the instructions\n- 0 : Quit\n");
         fflush(stdin);
@@ -88,7 +76,7 @@ int main() {
 
             case '2':
                 // Ask the user for the instructions
-                askingUserForInstructions();
+                askingUserForInstructions(ast);
                 break;
 
             default:

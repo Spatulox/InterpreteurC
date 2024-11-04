@@ -12,6 +12,7 @@ set(SOURCES
     src/c_files/file.c
     src/c_files/log.c
     src/c_files/lexer.c
+    src/c_files/shunting-yard.c
     src/c_files/manage_list.c
         src/c_files/test.c src/includes_h/test.h)
 
