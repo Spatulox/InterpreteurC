@@ -22,10 +22,13 @@ typedef struct {
 
 // CHAINED LIST
 
-typedef struct {
+typedef struct ListVariable ListVariable;
+
+struct ListVariable {
     int TYPE;
     Value value;
-    struct ListVariable *next;
-}ListVariable;
+    char* varName;
+    ListVariable *next;
+};
 
 #endif //INTERPRETEURC_STRUCTS_H
