@@ -106,10 +106,10 @@ int skipToEndLineChars(FILE * fp){
 
 // ------------------------------------------------------------------------ //
 
-char **readInstructionFile(int *rows, int *columns) {
-    FILE *fp = fopen("instructions.txt", "r");
+char **readInstructionFile(const char *fileName, int *rows, int *columns) {
+    FILE *fp = fopen(fileName, "r");
     if (fp == NULL) {
-        Log("ERROR : Impossible to open the 'instructions' file");
+        Log("ERROR : Impossible to open the file provided");
         return NULL;
     }
 
