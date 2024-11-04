@@ -4,6 +4,7 @@
 #include "./src/includes_h/log.h"
 #include "./src/includes_h/file.h"
 #include "./src/includes_h/structs.h"
+#include "./src/includes_h/test.h"
 
 // ------------------------------------------------------------------------ //
 
@@ -63,8 +64,7 @@ void test_addVariableToList();
 
 
 /*int main(){
-    test_createVariableNode();
-    test_addVariableToList();
+    test_all();
     return 0;
 }*/
 

@@ -4,6 +4,5 @@
 
 #ifndef INTERPRETEURC_TEST_H
 #define INTERPRETEURC_TEST_H
-void test_createVariableNode();
-void test_addVariableToList();
+void test_all();
 #endif //INTERPRETEURC_TEST_H
