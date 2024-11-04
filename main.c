@@ -2,8 +2,6 @@
 #include "log.h"
 #include "file.h"
 #include "shunting-yard.h"
-
-#include "./src/includes_h/structs.h"
 // ------------------------------------------------------------------------ //
 
 int readAndExecuteInstructionFile(){
