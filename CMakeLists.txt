@@ -13,7 +13,7 @@ set(SOURCES
     src/c_files/log.c
     src/c_files/lexer.c
     src/c_files/manage_list.c
-)
+        src/c_files/test.c src/includes_h/test.h)
 
 # Output directory for the executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
