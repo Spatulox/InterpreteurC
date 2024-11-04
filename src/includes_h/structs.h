@@ -18,6 +18,7 @@ typedef union {
 typedef struct {
     TYPE TYPE;
     Value value;
+    char* varName;
 }Variable;
 
 // CHAINED LIST
@@ -25,9 +26,7 @@ typedef struct {
 typedef struct ListVariable ListVariable;
 
 struct ListVariable {
-    int TYPE;
-    Value value;
-    char* varName;
+    Variable variable;
     ListVariable *next;
 };
 
