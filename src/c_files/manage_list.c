@@ -3,17 +3,20 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../includes_h/structs.h"
 #include "../includes_h/log.h"
 
 // ------------------------------------------------------------------------ //
 
-ListVariable* createVariableNode(TYPE type, Value value) {
+
+ListVariable* createVariableNode(TYPE type, Value value, char* varName) {
     ListVariable* node = malloc(sizeof(ListVariable));
     if (node) {
         node->TYPE = type;
         node->value = value;
+        node->varName = strdup(varName);  // Copie le nom de la variable
         node->next = NULL;
     } else {
         Log("ERROR : Impossible to create a ListVariable node");
@@ -23,14 +26,29 @@ ListVariable* createVariableNode(TYPE type, Value value) {
 
 // ------------------------------------------------------------------------ //
 
-void addVariableToList(ListVariable** start, TYPE type, Value value) {
-    ListVariable* newNode = createVariableNode(type, value);
+void addVariableToList(ListVariable** start, TYPE type, Value value, char* varName) {
+    ListVariable* newNode = createVariableNode(type, value, varName);
     if (newNode) {
         newNode->next = (struct ListVariable *) *start;
         *start = newNode;
     } else {
         Log("ERROR : Impossible to add a node to the ListVariable");
     }
+}
+
+// ------------------------------------------------------------------------ //
+
+ListVariable* searchVariableInList(ListVariable* start, char* varName) {
+    ListVariable* current = start;
+
+    while (current != NULL) {
+        if (strcmp(current->varName, varName) == 0) {
+            return current;
+        }
+        current = (ListVariable*)current->next;
+    }
+
+    return NULL;
 }
 
 // ------------------------------------------------------------------------ //
@@ -49,7 +67,7 @@ void printListsVar(ListVariable* variableList) {
     printf("Details of ListVariables:\n");
     ListVariable *currentVar = variableList;
     while (currentVar != NULL) {
-        printf("Type: ");
+        printf("Name: %s, Type: ", currentVar->varName);
         switch (currentVar->TYPE) {
             case INT:
                 printf("INT, Value: %d\n", currentVar->value.intValue);
