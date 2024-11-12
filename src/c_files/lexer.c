@@ -46,13 +46,24 @@ Token* lexerCalculator(char* input) {
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';  // Terminer la chaîne
 
-            Token *newToken = createToken(VARIABLE , buffer);
-            if (!firstToken) {
-                firstToken = newToken;
+            // Si print
+            if (strcmp(buffer, "print") == 0) {
+                Token *newToken = createToken(PRINT, buffer);
+                if (!firstToken) {
+                    firstToken = newToken;
+                } else {
+                    currentToken->nextToken = newToken;
+                }
+                currentToken = newToken;
             } else {
-                currentToken->nextToken = newToken;
+                Token *newToken = createToken(VARIABLE , buffer);
+                if (!firstToken) {
+                    firstToken = newToken;
+                } else {
+                    currentToken->nextToken = newToken;
+                }
+                currentToken = newToken;
             }
-            currentToken = newToken;
         }
 
         // Nombre
@@ -88,6 +99,34 @@ Token* lexerCalculator(char* input) {
             i++;
         }
 
+        // Parenthèses
+        else if (input[i] = '(') {
+            buffer[0] = input[i];
+            buffer[1] = '\0';
+
+            Token *newToken = createToken(PARENTHESIS_OPEN, buffer);
+            if (!firstToken) {
+                firstToken = newToken;
+            } else {
+                currentToken->nextToken = newToken;
+            }
+            currentToken = newToken;
+            i++;
+        }
+
+        else if (input[i] = ')') {
+            buffer[0] = input[i];
+            buffer[1] = '\0';
+
+            Token *newToken = createToken(PARENTHESIS_CLOSE, buffer);
+            if (!firstToken) {
+                firstToken = newToken;
+            } else {
+                currentToken->nextToken = newToken;
+            }
+            currentToken = newToken;
+            i++;
+        }
         // Affectation
         else if (input[i] == '=') {
             buffer[0] = input[i];
