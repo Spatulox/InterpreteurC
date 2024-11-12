@@ -82,6 +82,7 @@ Token* lexerCalculator(char* input) {
                 currentToken->nextToken = newToken;
             }
             currentToken = newToken;
+            printf("Number: %s\n", newToken->value);
         }
 
         // Opérateur
@@ -100,7 +101,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Parenthèses
-        else if (input[i] = '(') {
+        else if (input[i] == '(') {
             buffer[0] = input[i];
             buffer[1] = '\0';
 
@@ -114,7 +115,7 @@ Token* lexerCalculator(char* input) {
             i++;
         }
 
-        else if (input[i] = ')') {
+        else if (input[i] == ')') {
             buffer[0] = input[i];
             buffer[1] = '\0';
 
