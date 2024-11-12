@@ -10,9 +10,11 @@ typedef enum TokenType{
     DEFAULT,
     NUMBER,
     OPERATOR,
-    PARENTHESIS,
+    PARENTHESIS_OPEN,
+    PARENTHESIS_CLOSE,
     ASSIGNMENT,
     VARIABLE,
+    PRINT,
 } TokenType;
 typedef struct Token {
     TokenType type;

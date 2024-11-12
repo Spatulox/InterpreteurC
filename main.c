@@ -2,16 +2,18 @@
 #include "log.h"
 #include "file.h"
 #include "shunting-yard.h"
+
+#define MAX_INSTRUCTION_SIZE 1000
+
 // ------------------------------------------------------------------------ //
 
-int readAndExecuteInstructionFile(){
+int readAndExecuteInstructionFile(const char *fileName){
     Log("INFO : Reading instructions file");
     int rows;
     int columns;
-    char ** array = readInstructionFile(&rows, &columns);
+    char ** array = readInstructionFile(fileName, &rows, &columns);
     //printf("rows:%d\n", rows);
     for (int i = 0; i < rows; ++i) {
-        // executeInstruction(array[i]);
         printf("%s\n", array[i]);
     }
 
@@ -22,26 +24,20 @@ int readAndExecuteInstructionFile(){
     return 0;
 }
 
-void executeInstruction(char * instruction){
-    printf("%s", instruction);
-}
 // ------------------------------------------------------------------------ //
 
-int askingUserForInstructions(Node* ast) {
-    Log("INFO : Asking user for instructions");
-
-    printf("-> ");
-    char instruction[MAX_TOKEN_SIZE -1];
-    scanf("%s", instruction);
+int executingUserInstructions(Node** ast, char* instruction) {
+    Log("[DEBUG] Processing user instruction");
     Token* tokens = lexerCalculator(instruction);
-    if(tokens){
-        ast = createAstFromTokens(ast, tokens);
-        ast = freeAllNodes(ast);
+    if (tokens) {
+        *ast = createAstFromTokens(*ast, tokens);
+        *ast = freeAllNodes(*ast);
         tokens = freeAllTokens(tokens);
     }
-    
+
     return 0;
 }
+
 
 // ------------------------------------------------------------------------ //
 
@@ -51,36 +47,46 @@ int askingUserForInstructions(Node* ast) {
     return 0;
 }*/
 
-int main() {
+int main(int argc, char **argv) {
 
-    char mainMenu = '0';
+    if (argc >= 2) {
+        Log("Reading instructions");
+        const char* fileString = argv[1];
+        readAndExecuteInstructionFile(fileString);
+        return 0;
+    }
+
     Node* ast = NULL;
-    do {
-        printf("What do you want to do ?\n- 1 : Read the instructions file\n- 2 : Manually enter the instructions\n- 0 : Quit\n");
+    Log("Manually enter instructions :");
+
+    char instruction[MAX_INSTRUCTION_SIZE];
+    int emptyLineCount = 0;
+
+    while (emptyLineCount < 2) {
+        printf("-> ");
+        // Get all the line
         fflush(stdin);
-        scanf("%s", &mainMenu);
-
-        switch (mainMenu) {
-            case '0':
-                break;
-
-            case '1':
-                // Read the file
-                readAndExecuteInstructionFile();
-                break;
-
-            case '2':
-                // Ask the user for the instructions
-                askingUserForInstructions(ast);
-                break;
-
-            default:
-                mainMenu = '0';
-                break;
+        if (fgets(instruction, sizeof(instruction), stdin) == NULL) {
+            break;
         }
 
-    }while(mainMenu != '0');
+        // Replace the last char by the "end of line" char
+        size_t len = strlen(instruction);
+        if (len > 0 && instruction[len-1] == '\n') {
+            instruction[len-1] = '\0';
+            len--;
+        }
 
-    Log("INFO : Stopping program\n");
+        if (len == 0) {
+            // Used to break the program if
+            emptyLineCount++;
+            printf("\n");
+        } else {
+            emptyLineCount = 0;
+            executingUserInstructions(&ast, instruction);
+        }
+    }
+
+    Log("INFO : Stopping program");
     return 0;
 }
