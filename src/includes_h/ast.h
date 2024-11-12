@@ -11,6 +11,7 @@
 #define INTERPRETEURC_AST_H
 
 #include "lexer.h"
+#include <stdint.h>
 
 typedef enum {
     AST_NUMBER,
@@ -23,15 +24,15 @@ typedef enum {
 typedef struct ASTNode {
     ASTNodeType type;
     union {
-        struct { int value; } number;
-        struct { char name[64]; } variable;
+        struct { uint64_t value; } number;
+        struct { char *name; } variable;
         struct {
             char op;
             struct ASTNode *left;
             struct ASTNode *right;
         } binary_op;
         struct {
-            char name[64];
+            char *name;
             struct ASTNode *value;
         } assignment;
         struct {

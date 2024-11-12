@@ -7,6 +7,8 @@
 
 #define MAX_INSTRUCTION_SIZE 1000
 
+void interpret(char *input);
+
 // ------------------------------------------------------------------------ //
 
 int readAndExecuteInstructionFile(const char *fileName){
@@ -51,9 +53,19 @@ int readAndExecuteInstructionFile(const char *fileName){
 
 
 int main() {
-        Token *tokens = lexerCalculator("(1 + 3) * 2");
+        Token *tokens = lexerCalculator("((113000000 + 3) * 2)");
         ASTNode *ast = parse_expression(&tokens);
         printf("Result: %d\n", eval(ast));
+
+        return 0;
+}
+
+void interpret(char *input) {
+    Token *tokens = lexerCalculator(input);
+    Token *current = tokens;
+    ASTNode *ast = parse_expression(&current);
+
+    if (ast) eval(ast);
 }
 
 //int main(int argc, char **argv) {

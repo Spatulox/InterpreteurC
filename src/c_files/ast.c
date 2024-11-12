@@ -66,7 +66,7 @@ ASTNode* parse_primary(Token **tokens) {
     } else if (token.type == VARIABLE) {
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_VARIABLE;
-        strcpy(node->variable.name, token.value);
+        node->variable.name = strdup(token.value);
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PARENTHESIS_OPEN) {
