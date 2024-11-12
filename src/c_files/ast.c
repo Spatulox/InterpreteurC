@@ -20,7 +20,7 @@ ASTNode *create_number_node(int value) {
 
 ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
         ASTNode *node = malloc(sizeof(ASTNode));
-        printf("Creating binary op node : %llu, %llu, %c\n", left->number.value, right->number.value, op);
+        // printf("Creating binary op node : %llu, %llu, %c\n", left->number.value, right->number.value, op);
         node->type = AST_BINARY_OP;
         node->binary_op.left = left;
         node->binary_op.right = right;
@@ -147,23 +147,23 @@ void free_ast(ASTNode *node) {
 }
 
 
-int eval(ASTNode *node) {
+float eval(ASTNode *node) {
         if (node == NULL) {
                 printf("Error: NULL node\n");
                 exit(1);
         }
         switch (node->type) {
                 case AST_NUMBER:
-                        printf("Evaluating number: %llu\n", node->number.value);
+                        // printf("Evaluating number: %llu\n", node->number.value);
                         return node->number.value;
                 case AST_VARIABLE:
-                        printf("Evaluating variable: %s\n", node->variable.name);
+                        // printf("Evaluating variable: %s\n", node->variable.name);
                         // TODO : Variable
                         exit(1);
                 case AST_BINARY_OP: {
-                        int left = eval(node->binary_op.left);
-                        int right = eval(node->binary_op.right);
-                        printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
+                        float left = eval(node->binary_op.left);
+                        float right = eval(node->binary_op.right);
+                        // printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
                         switch (node->binary_op.op) {
                                 case '+':
                                         return left + right;
