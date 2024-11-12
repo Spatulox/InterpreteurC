@@ -55,5 +55,6 @@ ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);
 int eval(ASTNode *node);
+void free_ast(ASTNode *node);
 
 #endif //INTERPRETEURC_AST_H

@@ -20,7 +20,7 @@ ASTNode *create_number_node(int value) {
 
 ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
         ASTNode *node = malloc(sizeof(ASTNode));
-        printf("Creating binary op node : %d, %d, %c\n", left->number.value, right->number.value, op);
+        printf("Creating binary op node : %llu, %llu, %c\n", left->number.value, right->number.value, op);
         node->type = AST_BINARY_OP;
         node->binary_op.left = left;
         node->binary_op.right = right;
@@ -154,7 +154,7 @@ int eval(ASTNode *node) {
         }
         switch (node->type) {
                 case AST_NUMBER:
-                        printf("Evaluating number: %d\n", node->number.value);
+                        printf("Evaluating number: %llu\n", node->number.value);
                         return node->number.value;
                 case AST_VARIABLE:
                         printf("Evaluating variable: %s\n", node->variable.name);
