@@ -111,6 +111,42 @@ ASTNode* parse_assignment(Token **tokens) {
 }
 
 
+void free_ast(ASTNode *node) {
+    if (node == NULL) {
+        printf("Error: Ast node is null\n");
+        return;
+    }
+
+    switch (node->type) {
+        case AST_NUMBER:
+            break;
+        case AST_VARIABLE:
+            free(node->variable.name);
+            break;
+        case AST_BINARY_OP:
+            // Free child
+            free_ast(node->binary_op.left);
+            free_ast(node->binary_op.right);
+            break;
+        case AST_ASSIGNMENT:
+            // Free the value
+            free(node->assignment.name);
+            free_ast(node->assignment.value);
+            break;
+        case AST_PRINT:
+            // free the print
+            free_ast(node->print.value);
+            break;
+        default:
+            printf("Unknown node type %d in free_ast\n", node->type);
+            break;
+    }
+
+    // free the node
+    free(node);
+}
+
+
 int eval(ASTNode *node) {
         if (node == NULL) {
                 printf("Error: NULL node\n");
