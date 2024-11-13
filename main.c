@@ -60,7 +60,10 @@ int main() {
     interpret("b = a + 3"); // b = 6
     interpret("c = a + b"); // c = 9
     interpret("c = c * b"); // c = 54
-    printListsVar(globalVariableList);
+    interpret("print(a)"); // print 3
+    interpret("print(b)"); // print 6
+    interpret("print(c + 5 * 2)"); // print 64
+
     return 0;
 }
 

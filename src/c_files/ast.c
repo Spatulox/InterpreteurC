@@ -34,7 +34,6 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 ASTNode *parse_expression(Token **tokens) {
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         printf("Assignment detected\n");
-        // Si c'est une assignation, on appelle `parse_assignment`
         return parse_assignment(tokens);
     }
 
@@ -89,6 +88,12 @@ ASTNode *parse_primary(Token **tokens) {
             exit(1);
         }
         return node;
+    } else if (token.type == PRINT) {
+        *tokens = (*tokens)->nextToken;
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_PRINT;
+        node->print.value = parse_expression(tokens);
+        return node;
     }
 
     printf("Error: Unrecognized token in parse_primary\n");
@@ -96,22 +101,16 @@ ASTNode *parse_primary(Token **tokens) {
 }
 
 
-/*
- * Objectif : parser l'assignation a = 1 + 2
- * a = IDENTIFIER (nom de variable donc ok)
- * = c'est bien une ASSIGNMENT donc ok
- * 1 + 2 c'est bien une
- */
 ASTNode *parse_assignment(Token **tokens) {
     if ((*tokens)->type == VARIABLE) {
         printf("Its a variable\n");
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_ASSIGNMENT;
-        node->assignment.name = strdup((*tokens)->value);  // Allocation sécurisée
+        node->assignment.name = strdup((*tokens)->value);
         *tokens = (*tokens)->nextToken;
 
         if ((*tokens)->type == ASSIGNMENT) {
-            *tokens = (*tokens)->nextToken; // Skip '='
+            *tokens = (*tokens)->nextToken;
             node->assignment.value = parse_expression(tokens);
             return node;
         }
@@ -203,15 +202,17 @@ int eval(ASTNode *node) {
             int value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
             if (existingVar) {
-                // Si la variable existe, on la met à jour
                 existingVar->variable.value.intValue = value;
             } else {
-                // Ajoute une nouvelle variable si elle n'existe pas encore
                 addVariableToList(&globalVariableList, INT, (Value) {.intValue = value}, node->assignment.name);
             }
             printf("Assigned variable: %s = %d\n", node->assignment.name, value);
             return value;
         }
+        case AST_PRINT:
+            int value = eval(node->print.value);
+            printf("PRINT -> %d\n", value);
+            return value;
 
         default:
             printf("Unknown node type %d\n", node->type);
