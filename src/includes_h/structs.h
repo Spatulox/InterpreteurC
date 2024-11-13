@@ -7,7 +7,7 @@
 typedef enum {
     INT,
     CHAR
-}TYPE;
+}Type;
 
 typedef union {
     int intValue;
@@ -16,7 +16,7 @@ typedef union {
 
 // Variable has a value and a type (to avoid wrong cast)
 typedef struct {
-    TYPE TYPE;
+    Type type;
     Value value;
     char* varName;
 }Variable;

@@ -3,6 +3,8 @@
 #include "file.h"
 #include "ast.h"
 #include "lexer.h"
+#include "structs.h"
+#include "manage_list.h"
 
 
 #define MAX_INSTRUCTION_SIZE 1000
@@ -11,18 +13,18 @@ void interpret(char *input);
 
 // ------------------------------------------------------------------------ //
 
-int readAndExecuteInstructionFile(const char *fileName){
+int readAndExecuteInstructionFile(const char *fileName) {
     Log("INFO : Reading instructions file");
     int rows;
     int columns;
-    char ** array = readInstructionFile(fileName, &rows, &columns);
+    char **array = readInstructionFile(fileName, &rows, &columns);
     //printf("rows:%d\n", rows);
     for (int i = 0; i < rows; ++i) {
         printf("%s\n", array[i]);
     }
 
     // Avoid the compilator message with the useless "if"
-    if(rows == 5){
+    if (rows == 5) {
         return -1;
     }
     return 0;
@@ -51,21 +53,22 @@ int readAndExecuteInstructionFile(const char *fileName){
     return 0;
 }*/
 
+ListVariable *globalVariableList = NULL;
 
 int main() {
-        Token *tokens = lexerCalculator("((113000000 + 3) * 2)");
-        ASTNode *ast = parse_expression(&tokens);
-        printf("Result: %d\n", eval(ast));
-
-        return 0;
+    interpret("a = 1 + 2"); // a = 3
+    interpret("b = a + 3"); // b = 6
+    interpret("c = a + b"); // c = 9
+    interpret("c = c * b"); // c = 54
+    printListsVar(globalVariableList);
+    return 0;
 }
 
 void interpret(char *input) {
     Token *tokens = lexerCalculator(input);
-    Token *current = tokens;
-    ASTNode *ast = parse_expression(&current);
-
+    ASTNode *ast = parse_expression(&tokens);
     if (ast) eval(ast);
+    freeAllTokens(tokens);
 }
 
 //int main(int argc, char **argv) {
