@@ -11,22 +11,23 @@
 // ------------------------------------------------------------------------ //
 
 
-ListVariable* createVariableNode(TYPE type, Value value, char* varName) {
+ListVariable* createVariableNode(Type type, Value value, char* varName) {
     ListVariable* node = malloc(sizeof(ListVariable));
     if (node) {
-        node->variable.TYPE = type;
+        node->variable.type = type;  // Changez TYPE par type
         node->variable.value = value;
-        node->variable.varName = strdup(varName);  // Copie le nom de la variable
+        node->variable.varName = strdup(varName);
         node->next = NULL;
     } else {
-        Log("ERROR : Impossible to create a ListVariable node");
+        Log("ERROR: Impossible to create a ListVariable node");
     }
     return node;
 }
 
+
 // ------------------------------------------------------------------------ //
 
-void addVariableToList(ListVariable** start, TYPE type, Value value, char* varName) {
+void addVariableToList(ListVariable** start, Type type, Value value, char* varName) {
     ListVariable* newNode = createVariableNode(type, value, varName);
     if (newNode) {
         newNode->next = (struct ListVariable *) *start;
@@ -65,11 +66,10 @@ void freeVariableList(ListVariable* head) {
 // ------------------------------------------------------------------------ //
 
 void printListsVar(ListVariable* variableList) {
-    printf("Details of ListVariables:\n");
     ListVariable *currentVar = variableList;
     while (currentVar != NULL) {
         printf("Name: %s, Type: ", currentVar->variable.varName);
-        switch (currentVar->variable.TYPE) {
+        switch (currentVar->variable.type) {
             case INT:
                 printf("INT, Value: %d\n", currentVar->variable.value.intValue);
                 break;
