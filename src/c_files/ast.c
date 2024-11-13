@@ -33,7 +33,6 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
-        printf("Assignment detected\n");
         return parse_assignment(tokens);
     }
 
@@ -103,7 +102,6 @@ ASTNode *parse_primary(Token **tokens) {
 
 ASTNode *parse_assignment(Token **tokens) {
     if ((*tokens)->type == VARIABLE) {
-        printf("Its a variable\n");
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_ASSIGNMENT;
         node->assignment.name = strdup((*tokens)->value);
@@ -164,12 +162,12 @@ int eval(ASTNode *node) {
     }
     switch (node->type) {
         case AST_NUMBER:
-            printf("Evaluating number: %llu\n", node->number.value);
+//            printf("Evaluating number: %llu\n", node->number.value);
             return node->number.value;
         case AST_VARIABLE: {
             ListVariable *var = searchVariableInList(globalVariableList, node->variable.name);
             if (var) {
-                printf("Evaluating variable: %s with value %d\n", node->variable.name, var->variable.value.intValue);
+//                printf("Evaluating variable: %s with value %d\n", node->variable.name, var->variable.value.intValue);
                 return var->variable.value.intValue;
             } else {
                 printf("Error: Undefined variable %s\n", node->variable.name);
@@ -179,7 +177,7 @@ int eval(ASTNode *node) {
         case AST_BINARY_OP: {
             int left = eval(node->binary_op.left);
             int right = eval(node->binary_op.right);
-            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
+//            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+':
                     return left + right;
@@ -206,7 +204,7 @@ int eval(ASTNode *node) {
             } else {
                 addVariableToList(&globalVariableList, INT, (Value) {.intValue = value}, node->assignment.name);
             }
-            printf("Assigned variable: %s = %d\n", node->assignment.name, value);
+//            printf("Assigned variable: %s = %d\n", node->assignment.name, value);
             return value;
         }
         case AST_PRINT:

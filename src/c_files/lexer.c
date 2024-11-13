@@ -82,7 +82,6 @@ Token* lexerCalculator(char* input) {
                 currentToken->nextToken = newToken;
             }
             currentToken = newToken;
-            printf("Number: %s\n", newToken->value);
         }
 
         // Opérateur
