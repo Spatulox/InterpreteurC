@@ -85,7 +85,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Opérateur
-        else if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/') {
+        else if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/' || input[i] == '%') {
             buffer[0] = input[i];
             buffer[1] = '\0';
 

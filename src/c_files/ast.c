@@ -53,7 +53,7 @@ ASTNode *parse_term(Token **tokens) {
     ASTNode *node = parse_primary(tokens);
 
     while (*tokens != NULL && (*tokens)->type == OPERATOR &&
-           ((*tokens)->value[0] == '*' || (*tokens)->value[0] == '/')) {
+           ((*tokens)->value[0] == '*' || (*tokens)->value[0] == '/' || (*tokens)->value[0] == '%')) {
         char op = (*tokens)->value[0];
         *tokens = (*tokens)->nextToken;
         ASTNode *right = parse_primary(tokens);
@@ -191,6 +191,14 @@ float eval(ASTNode *node) {
                         exit(1);
                     }
                     return left / right;
+                case '%':
+                    if (right == 0) {
+                        printf("Error: Division by zero\n");
+                        exit(1);
+                    }
+                    int intLeft = left;
+                    int intRight = right;
+                    return intLeft % intRight;
                 default:
                     printf("Unknown operator %c\n", node->binary_op.op);
                     exit(1);
