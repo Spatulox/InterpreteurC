@@ -24,7 +24,7 @@ typedef enum {
 typedef struct ASTNode {
     ASTNodeType type;
     union {
-        struct { uint64_t value; } number;
+        struct { float value; } number;
         struct { char *name; } variable;
         struct {
             char op;
@@ -54,7 +54,7 @@ ASTNode* parse_expression(Token **tokens);
 ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);
-int eval(ASTNode *node);
+float eval(ASTNode *node);
 void free_ast(ASTNode *node);
 
 #endif //INTERPRETEURC_AST_H

@@ -1,7 +1,7 @@
 x=10
 y = x + 5
-printf(y)
+print(y)
 a = 3 + 4 * 2
-b = (1 + 2) * (3 - 1)
+b = ((y + 2) * (3 - 1)) / 2
 print(a)
 print(b)

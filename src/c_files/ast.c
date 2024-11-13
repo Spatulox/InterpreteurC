@@ -155,7 +155,7 @@ void free_ast(ASTNode *node) {
 }
 
 
-int eval(ASTNode *node) {
+float eval(ASTNode *node) {
     if (node == NULL) {
         printf("Error: NULL node\n");
         exit(1);
@@ -175,8 +175,8 @@ int eval(ASTNode *node) {
             }
         }
         case AST_BINARY_OP: {
-            int left = eval(node->binary_op.left);
-            int right = eval(node->binary_op.right);
+            float left = eval(node->binary_op.left);
+            float right = eval(node->binary_op.right);
 //            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+':
@@ -197,7 +197,7 @@ int eval(ASTNode *node) {
             }
         }
         case AST_ASSIGNMENT: {
-            int value = eval(node->assignment.value);
+            float value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
             if (existingVar) {
                 existingVar->variable.value.intValue = value;
@@ -208,8 +208,8 @@ int eval(ASTNode *node) {
             return value;
         }
         case AST_PRINT:
-            int value = eval(node->print.value);
-            printf("PRINT -> %d\n", value);
+            float value = eval(node->print.value);
+            printf("PRINT -> %g\n", value);
             return value;
 
         default:

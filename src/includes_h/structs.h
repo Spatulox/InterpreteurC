@@ -10,7 +10,7 @@ typedef enum {
 }Type;
 
 typedef union {
-    int intValue;
+    float intValue;
     char * stringValue;
 } Value;
 
