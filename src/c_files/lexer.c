@@ -67,9 +67,13 @@ Token* lexerCalculator(char* input) {
         }
 
         // Nombre
-        else if (isdigit(input[i])) {
+        else if (isdigit(input[i]) || (input[i] == '.' && isdigit(input[i+1]))) {
             int start = i;
-            while (isdigit(input[i])) {
+            int hasDecimal = 0;
+            while (isdigit(input[i]) || (input[i] == '.' && !hasDecimal)) {
+                if (input[i] == '.') {
+                    hasDecimal = 1;
+                }
                 i++;
             }
             strncpy(buffer, &input[start], i - start);
