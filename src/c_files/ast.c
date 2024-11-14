@@ -205,7 +205,7 @@ number eval(ASTNode *node) {
                     result.value.int_value = var->variable.value.intValue;
                     return result;
                 } else if (var->variable.type == FLOATVAR){
-                    result.type = INT;
+                    result.type = FLOAT;
                     result.value.float_value = var->variable.value.floatValue;
                     return result;
                 }
