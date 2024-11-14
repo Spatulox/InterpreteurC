@@ -220,7 +220,7 @@ number eval(ASTNode *node) {
 //            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+':
-                    if(left.type == INT){
+                    if(left.type == INT && right.type == INT){
                         result.type = INT;
                         result.value.int_value = left.value.int_value + right.value.int_value;
                         return result;
