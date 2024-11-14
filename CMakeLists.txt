@@ -16,7 +16,7 @@ set(SOURCES
         src/c_files/test.c src/includes_h/test.h
         src/includes_h/ast.h
         src/c_files/ast.c
-        src/includes_h/global.h)
+        src/includes_h/global.h src/c_files/stringUtils.c src/includes_h/stringUtils.h)
 
 # Output directory for the executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
