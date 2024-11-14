@@ -16,10 +16,27 @@
 #include "manage_list.h"
 #include "global.h"
 
-ASTNode *create_number_node(int value) {
+ASTNode *create_number_node(const char* value) {
     ASTNode *node = malloc(sizeof(ASTNode));
     node->type = AST_NUMBER;
-    node->number.value = value;
+
+
+    char* endptr;
+    double num = strtod(value, &endptr);
+
+    if (*endptr == '\0') {
+        // Ok
+        if (num == floor(num)) {
+            node->number.type = INT;
+            node->number.value.int_value = (int) num;
+        } else {
+            node->number.type = FLOAT;
+            node->number.value.float_value = (float) num;
+        }
+    } else {
+        printf("IMPOSSIBLE TO DETERMINE THE TYPE OF THE NUMBER (INT OF FLOAT)");
+        return 0;
+    }
     return node;
 }
 
@@ -70,7 +87,8 @@ ASTNode *parse_primary(Token **tokens) {
     Token token = **tokens;
 
     if (token.type == NUMBER) {
-        ASTNode *node = create_number_node(atoi(token.value));
+        //ASTNode *node = create_number_node(atoi(token.value));
+        ASTNode *node = create_number_node(token.value);
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == VARIABLE) {
@@ -157,74 +175,155 @@ void free_ast(ASTNode *node) {
 }
 
 
-float eval(ASTNode *node) {
+number eval(ASTNode *node) {
     if (node == NULL) {
         printf("Error: NULL node\n");
         exit(1);
     }
+    number result;
     switch (node->type) {
         case AST_NUMBER:
-//            printf("Evaluating number: %llu\n", node->number.value);
-            return node->number.value;
+//            printf("Evaluating number: %d\n", node->number.value.int_value);
+            if (node->number.type == INT) {
+                result.type = INT;
+                result.value.int_value = node->number.value.int_value;
+            } else {
+                result.type = FLOAT;
+                result.value.float_value = node->number.value.float_value;
+            }
+            return result;
         case AST_VARIABLE: {
+            if (node->variable.name == NULL) {
+                printf("Error: Variable name is NULL\n");
+                exit(1);
+            }
             ListVariable *var = searchVariableInList(globalVariableList, node->variable.name);
             if (var) {
 //                printf("Evaluating variable: %s with value %d\n", node->variable.name, var->variable.value.intValue);
-                return var->variable.value.intValue;
+                if(var->variable.type == INTVAR){
+                    result.type = INT;
+                    result.value.int_value = var->variable.value.intValue;
+                    return result;
+                } else if (var->variable.type == FLOATVAR){
+                    result.type = INT;
+                    result.value.float_value = var->variable.value.floatValue;
+                    return result;
+                }
             } else {
                 printf("Error: Undefined variable %s\n", node->variable.name);
                 exit(1);
             }
         }
         case AST_BINARY_OP: {
-            float left = eval(node->binary_op.left);
-            float right = eval(node->binary_op.right);
+            number left = eval(node->binary_op.left);
+            number right = eval(node->binary_op.right);
 //            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+':
-                    return left + right;
+                    if(left.type == INT){
+                        result.type = INT;
+                        result.value.int_value = left.value.int_value + right.value.int_value;
+                        return result;
+                    }
+                    result.type = FLOAT;
+                    result.value.float_value =
+                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) +
+                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                    return result;
+
                 case '-':
-                    return left - right;
+                    if (left.type == INT && right.type == INT) {
+                        result.type = INT;
+                        result.value.int_value = left.value.int_value - right.value.int_value;
+                        return result;
+                    }
+                    result.type = FLOAT;
+                    result.value.float_value =
+                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) -
+                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                    return result;
+
                 case '*':
-                    return left * right;
-                case '/':
-                    if (right == 0) {
-                        printf("Error: Division by zero\n");
-                        exit(1);
-                    }
-                    return left / right;
-                case '%':
-                    if (right == 0) {
-                        printf("Error: Division by zero\n");
-                        exit(1);
-                    }
-                    // Round the number to check if it's interger
-                    if (floor(left) == left && floor(right) == right) {
-                        return (int)left % (int)right;
+                    if (left.type == INT && right.type == INT) {
+                        result.type = INT;
+                        result.value.int_value = left.value.int_value * right.value.int_value;
                     } else {
-                        // If one or mor are float/double
-                        return fmod(left, right);
+                        result.type = FLOAT;
+                        result.value.float_value =
+                                (left.type == INT ? (float)left.value.int_value : left.value.float_value) *
+                                (right.type == INT ? (float)right.value.int_value : right.value.float_value);
                     }
+                    return result;
+
+                case '/':
+                    if ((right.type == INT && right.value.int_value == 0) ||
+                        (right.type == FLOAT && right.value.float_value == 0.0f)) {
+                        printf("Error: Division by zero\n");
+                        exit(1);
+                    }
+                    result.type = FLOAT;
+                    result.value.float_value =
+                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) /
+                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                    return result;
+
+                case '%':
+                    if ((right.type == INT && right.value.int_value == 0) ||
+                        (right.type == FLOAT && right.value.float_value == 0.0f)) {
+                        printf("Error: Modulo by zero\n");
+                        exit(1);
+                    }
+                    if (left.type == INT && right.type == INT) {
+                        result.type = INT;
+                        result.value.int_value = left.value.int_value % right.value.int_value;
+                    } else {
+                        result.type = FLOAT;
+                        result.value.float_value = fmodf(
+                                (left.type == INT ? (float)left.value.int_value : left.value.float_value),
+                                (right.type == INT ? (float)right.value.int_value : right.value.float_value));
+                    }
+                    return result;
+
                 default:
                     printf("Unknown operator %c\n", node->binary_op.op);
                     exit(1);
             }
         }
         case AST_ASSIGNMENT: {
-            float value = eval(node->assignment.value);
+            number value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
             if (existingVar) {
-                existingVar->variable.value.intValue = value;
+                existingVar->variable.type = value.type;
+                if (value.type == INT) {
+                    existingVar->variable.value.intValue = value.value.int_value;
+                } else {
+                    existingVar->variable.value.floatValue = value.value.float_value;
+                }
             } else {
-                addVariableToList(&globalVariableList, INT, (Value) {.intValue = value}, node->assignment.name);
+                if (value.type == INT) {
+                    addVariableToList(&globalVariableList, INTVAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
+                } else {
+                    addVariableToList(&globalVariableList, FLOATVAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                }
             }
-//            printf("Assigned variable: %s = %d\n", node->assignment.name, value);
+            // if (value.type == INT) {
+            //     printf("Assigned variable: %s = %d\n", node->assignment.name, value.value.int_value);
+            // } else {
+            //     printf("Assigned variable: %s = %f\n", node->assignment.name, value.value.float_value);
+            // }
             return value;
         }
-        case AST_PRINT:
-            float value = eval(node->print.value);
-            printf("PRINT -> %g\n", value);
+        case AST_PRINT: {
+            number value = eval(node->print.value);
+            if (value.type == INT) {
+                printf("PRINT -> %d\n", value.value.int_value);
+            } else if(value.type == FLOAT) {
+                printf("PRINT -> %f\n", value.value.float_value);
+            } else {
+                printf("Wrong var type");
+            }
             return value;
+        }
 
         default:
             printf("Unknown node type %d\n", node->type);
