@@ -1,11 +1,13 @@
 /*////////////////////////////////////////////////////////*/
 //                                                        //   
-// Name: ast.c                                     //                     
+// Name: ast.c                                            //                     
 // Author: Enzo M                                         //  
-// Date: 12/11/2024                                          //  
+// Date: 12/11/2024                                       //  
 // Description: ...                                       //
 //                                                        //  
 /*////////////////////////////////////////////////////////*/
+
+#include <math.h>
 
 #include "ast.h"
 #include "includes.h"
@@ -196,9 +198,13 @@ float eval(ASTNode *node) {
                         printf("Error: Division by zero\n");
                         exit(1);
                     }
-                    int intLeft = left;
-                    int intRight = right;
-                    return intLeft % intRight;
+                    // Round the number to check if it's interger
+                    if (floor(left) == left && floor(right) == right) {
+                        return (int)left % (int)right;
+                    } else {
+                        // If one or mor are float/double
+                        return fmod(left, right);
+                    }
                 default:
                     printf("Unknown operator %c\n", node->binary_op.op);
                     exit(1);
