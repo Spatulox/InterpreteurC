@@ -1,5 +1,5 @@
 //
-// Created by M78st on 02/10/2024.
+// Created by Marc on 02/10/2024.
 //
 
 #ifndef INTERPRETEURC_MANAGE_LIST_H
