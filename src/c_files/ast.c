@@ -15,6 +15,7 @@
 #include "structs.h"
 #include "manage_list.h"
 #include "global.h"
+#include "stringUtils.h"
 
 ASTNode *create_number_node(const char* value) {
     ASTNode *node = malloc(sizeof(ASTNode));
@@ -87,7 +88,6 @@ ASTNode *parse_primary(Token **tokens) {
     Token token = **tokens;
 
     if (token.type == NUMBER) {
-        //ASTNode *node = create_number_node(atoi(token.value));
         ASTNode *node = create_number_node(token.value);
         *tokens = (*tokens)->nextToken;
         return node;
@@ -174,7 +174,6 @@ void free_ast(ASTNode *node) {
     free(node);
 }
 
-
 number eval(ASTNode *node) {
     if (node == NULL) {
         printf("Error: NULL node\n");
@@ -236,6 +235,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '-':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value - right.value.int_value;
@@ -248,6 +252,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '*':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value * right.value.int_value;
@@ -260,6 +269,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '/':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Division by zero\n");
@@ -272,6 +286,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '%':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Modulo by zero\n");
