@@ -14,7 +14,7 @@ typedef enum TokenType{
     PARENTHESIS_CLOSE,
     ASSIGNMENT,
     VARIABLE,
-    STRING,
+    STRING_TOKEN,
     PRINT,
 } TokenType;
 typedef struct Token {

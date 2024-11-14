@@ -162,7 +162,7 @@ Token* lexerCalculator(char* input) {
             }
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
-            Token *newToken = createToken(STRING , buffer);
+            Token *newToken = createToken(STRING_TOKEN , buffer);
             if (!firstToken) {
                 firstToken = newToken;
             } else {
