@@ -23,3 +23,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Add executable
 add_executable(prog ${SOURCES})
+
+# link math lib (wtf)
+target_link_libraries(prog m)
