@@ -5,12 +5,14 @@
 #ifndef INTERPRETEURC_STRUCTS_H
 #define INTERPRETEURC_STRUCTS_H
 typedef enum {
-    INT,
-    CHAR
+    INTVAR,
+    FLOATVAR,
+    CHARVAR
 }Type;
 
 typedef union {
-    float intValue;
+    int intValue;
+    float floatValue;
     char * stringValue;
 } Value;
 
