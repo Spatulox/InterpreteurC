@@ -152,7 +152,7 @@ Token* lexerCalculator(char* input) {
         // chaine de charactère
         else if(input[i] == '"') {
             int start = i;
-            i++
+            i++;
             while(input[i] != '"' || input[i] != '\0') {
                 i++;
             }
