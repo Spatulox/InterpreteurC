@@ -38,9 +38,10 @@ Token* lexerCalculator(char* input) {
         }
 
         // Variable
-        if (isalpha(input[i])) {
+        if (isalpha(input[i]) || input[i] == '_') {
             int start = i;
-            while (isalpha(input[i])) {
+            i++;
+            while (isalpha(input[i]) || isdigit(input[i]) || input[i] == '_') {
                 i++;
             }
             strncpy(buffer, &input[start], i - start);
