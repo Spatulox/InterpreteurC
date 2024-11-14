@@ -70,10 +70,13 @@ void printListsVar(ListVariable* variableList) {
     while (currentVar != NULL) {
         printf("Name: %s, Type: ", currentVar->variable.varName);
         switch (currentVar->variable.type) {
-            case INT:
-                printf("INT, Value: %g\n", currentVar->variable.value.intValue);
+            case INTVAR:
+                printf("INT, Value: %d\n", currentVar->variable.value.intValue);
                 break;
-            case CHAR:
+            case FLOATVAR:
+                printf("INT, Value: %f\n", currentVar->variable.value.floatValue);
+                break;
+            case CHARVAR:
                 printf("CHAR, Value: %s\n", currentVar->variable.value.stringValue);
                 break;
             default:

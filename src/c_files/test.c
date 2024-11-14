@@ -27,10 +27,10 @@ void test_createVariableNode() {
     // Test INT
     Value intValue;
     intValue.intValue = 42;
-    ListVariable* intNode = createVariableNode(INT, intValue, "intVar");
+    ListVariable* intNode = createVariableNode(INTVAR, intValue, "intVar");
 
     assert(intNode != NULL);
-    assert(intNode->variable.type == INT);
+    assert(intNode->variable.type == INTVAR);
     assert(intNode->variable.value.intValue == 42);
     assert(strcmp(intNode->variable.varName, "intVar") == 0);
     assert(intNode->next == NULL);
@@ -41,10 +41,10 @@ void test_createVariableNode() {
     // Test CHAR
     Value charValue;
     charValue.stringValue = "test";
-    ListVariable* charNode = createVariableNode(CHAR, charValue, "charVar");
+    ListVariable* charNode = createVariableNode(CHARVAR, charValue, "charVar");
 
     assert(charNode != NULL);
-    assert(charNode->variable.type == CHAR);
+    assert(charNode->variable.type == CHARVAR);
     assert(strcmp(charNode->variable.value.stringValue, "test") == 0);
     assert(strcmp(charNode->variable.varName, "charVar") == 0);
     assert(charNode->next == NULL);
@@ -63,10 +63,10 @@ void test_addVariableToList() {
     // Add INT
     Value intValue;
     intValue.intValue = 10;
-    addVariableToList(&list, INT, intValue, "intVar");
+    addVariableToList(&list, INTVAR, intValue, "intVar");
 
     assert(list != NULL);
-    assert(list->variable.type == INT);
+    assert(list->variable.type == INTVAR);
     assert(list->variable.value.intValue == 10);
     assert(strcmp(list->variable.varName, "intVar") == 0);
     assert(list->next == NULL);
@@ -74,14 +74,14 @@ void test_addVariableToList() {
     // add a CHAR
     Value charValue;
     charValue.stringValue = "hello";
-    addVariableToList(&list, CHAR, charValue, "charVar");
+    addVariableToList(&list, CHARVAR, charValue, "charVar");
 
     assert(list != NULL);
-    assert(list->variable.type == CHAR);
+    assert(list->variable.type == CHARVAR);
     assert(strcmp(list->variable.value.stringValue, "hello") == 0);
     assert(strcmp(list->variable.varName, "charVar") == 0);
     assert(list->next != NULL);
-    assert(((ListVariable*)list->next)->variable.type == INT);
+    assert(((ListVariable*)list->next)->variable.type == INTVAR);
     assert(((ListVariable*)list->next)->variable.value.intValue == 10);
     assert(strcmp(((ListVariable*)list->next)->variable.varName, "intVar") == 0);
 
@@ -102,21 +102,21 @@ void test_searchVariableInList() {
     intValue2.intValue = 20;
     charValue.stringValue = strdup("hello");
 
-    addVariableToList(&list, INT, intValue1, "intVar1");
-    addVariableToList(&list, INT, intValue2, "intVar2");
-    addVariableToList(&list, CHAR, charValue, "charVar");
+    addVariableToList(&list, INTVAR, intValue1, "intVar1");
+    addVariableToList(&list, INTVAR, intValue2, "intVar2");
+    addVariableToList(&list, CHARVAR, charValue, "charVar");
 
     // Test 1: Recherche d'une variable existante (INT)
     ListVariable* result1 = searchVariableInList(list, "intVar1");
     assert(result1 != NULL);
-    assert(result1->variable.type == INT);
+    assert(result1->variable.type == INTVAR);
     assert(result1->variable.value.intValue == 10);
     assert(strcmp(result1->variable.varName, "intVar1") == 0);
 
     // Test 2: Recherche d'une variable existante (CHAR)
     ListVariable* result2 = searchVariableInList(list, "charVar");
     assert(result2 != NULL);
-    assert(result2->variable.type == CHAR);
+    assert(result2->variable.type == CHARVAR);
     assert(strcmp(result2->variable.value.stringValue, "hello") == 0);
     assert(strcmp(result2->variable.varName, "charVar") == 0);
 
