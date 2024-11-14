@@ -21,10 +21,21 @@ typedef enum {
     AST_PRINT
 } ASTNodeType;
 
+typedef struct{
+    enum{
+        INT,
+        FLOAT
+    } type;
+    union {
+        int int_value;
+        float float_value;
+    } value;
+} number;
+
 typedef struct ASTNode {
     ASTNodeType type;
     union {
-        struct { float value; } number;
+        number number;
         struct { char *name; } variable;
         struct {
             char op;
@@ -48,13 +59,15 @@ typedef struct Node {
     struct Node *right;
 } Node;
 
-ASTNode *create_number_node(int value);
+//ASTNode *create_number_node(int value);
+ASTNode *create_number_node(const char* value);
 ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op);
 ASTNode* parse_expression(Token **tokens);
 ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);
-float eval(ASTNode *node);
+//float eval(ASTNode *node);
+number eval(ASTNode *node);
 void free_ast(ASTNode *node);
 
 #endif //INTERPRETEURC_AST_H
