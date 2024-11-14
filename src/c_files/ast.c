@@ -342,6 +342,8 @@ number eval(ASTNode *node) {
                 printf("PRINT -> %d\n", value.value.int_value);
             } else if(value.type == FLOAT) {
                 printf("PRINT -> %f\n", value.value.float_value);
+            } else if(value.type == STRING) {
+                printf("PRINT -> %s\n", value.value.string);
             } else {
                 printf("Wrong var type");
             }

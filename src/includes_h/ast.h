@@ -15,6 +15,7 @@
 
 typedef enum {
     AST_NUMBER,
+    AST_STRING,
     AST_VARIABLE,
     AST_ASSIGNMENT,
     AST_BINARY_OP,
@@ -24,11 +25,13 @@ typedef enum {
 typedef struct{
     enum{
         INT,
-        FLOAT
+        FLOAT,
+        STRING
     } type;
     union {
         int int_value;
         float float_value;
+        char* string;
     } value;
 } number;
 
