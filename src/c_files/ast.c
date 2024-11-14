@@ -200,13 +200,17 @@ number eval(ASTNode *node) {
             ListVariable *var = searchVariableInList(globalVariableList, node->variable.name);
             if (var) {
 //                printf("Evaluating variable: %s with value %d\n", node->variable.name, var->variable.value.intValue);
-                if(var->variable.type == INTVAR){
+                if(var->variable.type == INT_VAR){
                     result.type = INT;
                     result.value.int_value = var->variable.value.intValue;
                     return result;
-                } else if (var->variable.type == FLOATVAR){
+                } else if (var->variable.type == FLOAT_VAR){
                     result.type = FLOAT;
                     result.value.float_value = var->variable.value.floatValue;
+                    return result;
+                } else if(var->variable.type == STRING_VAR){
+                    result.type = STRING;
+                    result.value.string = var->variable.value.stringValue;
                     return result;
                 }
             } else {
@@ -301,14 +305,14 @@ number eval(ASTNode *node) {
                 }
             } else {
                 if (value.type == INT) {
-                    addVariableToList(&globalVariableList, INTVAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
+                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
                 } else {
-                    addVariableToList(&globalVariableList, FLOATVAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
                 }
             }
             // if (value.type == INT) {
             //     printf("Assigned variable: %s = %d\n", node->assignment.name, value.value.int_value);
-            // } else {
+            // } else if (value.type == FLOAT) {
             //     printf("Assigned variable: %s = %f\n", node->assignment.name, value.value.float_value);
             // }
             return value;
