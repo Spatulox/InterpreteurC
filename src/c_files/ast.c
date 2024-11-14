@@ -222,17 +222,38 @@ number eval(ASTNode *node) {
             number right = eval(node->binary_op.right);
 //            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
-                case '+':
-                    if(left.type == INT && right.type == INT){
+                case '+': {
+                    if (left.type == STRING || right.type == STRING ) {
+                        unsigned long long len = 0;
+                        unsigned long long lenRight = 0;
+                        unsigned long long lenLeft = 0;
+
+                        char *resultString = malloc(1);
+                        if (resultString == NULL) {
+                            printf("Erreur d'allocation mémoire\n");
+                            number nullValue;
+                            nullValue.type = NULL_TYPE;
+                            return nullValue;
+                        }
+                        resultString[0] = '\0';
+                        castNumberIntoString(left, &resultString);
+                        castNumberIntoString(right, &resultString);
+                        result.type = STRING;
+                        result.value.string = resultString;
+                        return result;
+                    }
+
+                    if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value + right.value.int_value;
                         return result;
                     }
                     result.type = FLOAT;
                     result.value.float_value =
-                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) +
-                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                            (left.type == INT ? (float) left.value.int_value : left.value.float_value) +
+                            (right.type == INT ? (float) right.value.int_value : right.value.float_value);
                     return result;
+                }
 
                 case '-':
                     if(castStringIntoNumber(&left, &right) != 0){
