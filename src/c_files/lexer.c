@@ -155,10 +155,11 @@ Token* lexerCalculator(char* input) {
                 printf("Error: Missing closing quote\n");
                 exit(1);
             }
-            i++;
+            start++;
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
             addToken(STRING_TOKEN, buffer, &firstToken, &currentToken);
+            i++;
         }
 
         // Si caractère non reconnu, on avance

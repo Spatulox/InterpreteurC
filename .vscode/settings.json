@@ -3,7 +3,8 @@
     "variable.h": "c",
     "file.h": "c",
     "shunting-yard.h": "c",
-    "lexer.h": "c"
+    "lexer.h": "c",
+    "type_traits": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

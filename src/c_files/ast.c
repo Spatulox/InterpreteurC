@@ -50,6 +50,15 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
     return node;
 }
 
+ASTNode *create_string_node(Token** tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_STRING;
+    node->number.type = STRING;
+    node->number.value.string = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
+    return node;
+}
+
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
     if(tokens == NULL){
@@ -58,6 +67,10 @@ ASTNode *parse_expression(Token **tokens) {
     
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         return parse_assignment(tokens);
+    }
+
+    if (*tokens && (*tokens)->type == STRING_TOKEN) {
+        return create_string_node(tokens);
     }
 
     ASTNode *node = parse_term(tokens);
@@ -204,6 +217,10 @@ number eval(ASTNode *node) {
                 result.type = FLOAT;
                 result.value.float_value = node->number.value.float_value;
             }
+            return result;
+        case AST_STRING:
+            result.type = STRING;
+            result.value.string = strdup(node->number.value.string);
             return result;
         case AST_VARIABLE: {
             if (node->variable.name == NULL) {
