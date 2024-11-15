@@ -138,13 +138,15 @@ Token* lexerCalculator(char* input) {
         else if(input[i] == '"') {
             int start = i;
             i++;
-            while(input[i] != '"' || input[i] != '\0') {
+            while(input[i] != '"' && input[i] != '\0') {
                 i++;
             }
+
             if(input[i] == '\0') {
                 printf("Error: Missing closing quote\n");
                 exit(1);
             }
+            i++;
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
             addToken(STRING_TOKEN, buffer, &firstToken, &currentToken);
