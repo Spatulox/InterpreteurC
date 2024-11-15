@@ -66,7 +66,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Nombre
-        else if (isdigit(input[i]) || (input[i] == '-' && isdigit(input[i + 1]) || (input[i] == '.' && isdigit(input[i+1])) && (currentToken->type != VARIABLE && currentToken->type != NUMBER))) {
+        else if (isdigit(input[i]) || (input[i] == '-' && isdigit(input[i + 1]) || (input[i] == '.' && isdigit(input[i+1])) && (currentToken == NULL || (currentToken->type != VARIABLE && currentToken->type != NUMBER)))) {
             int start = i;
             if (input[i] == '-') {
                 i++;
