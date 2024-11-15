@@ -337,17 +337,22 @@ number eval(ASTNode *node) {
             number value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
             if (existingVar) {
+                freeOldValueVariable(existingVar);
                 existingVar->variable.type = value.type;
                 if (value.type == INT) {
                     existingVar->variable.value.intValue = value.value.int_value;
-                } else {
+                } else if(value.type == FLOAT) {
                     existingVar->variable.value.floatValue = value.value.float_value;
+                } else if(value.type == STRING) {
+                    existingVar->variable.value.stringValue = strdup(value.value.string);
                 }
             } else {
                 if (value.type == INT) {
                     addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
-                } else {
+                } else if(value.type == FLOAT) {
                     addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                } else if(value.type == STRING) {
+                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
                 }
             }
             // if (value.type == INT) {
