@@ -66,12 +66,12 @@ typedef struct Node {
 
 //ASTNode *create_number_node(int value);
 ASTNode *create_number_node(const char* value);
+ASTNode *create_string_node(Token **tokens);
 ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op);
 ASTNode* parse_expression(Token **tokens);
 ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);
-//float eval(ASTNode *node);
 number eval(ASTNode *node);
 void free_ast(ASTNode *node);
 
