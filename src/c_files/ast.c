@@ -52,6 +52,10 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
+    if(tokens == NULL){
+        return;
+    }
+    
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         return parse_assignment(tokens);
     }

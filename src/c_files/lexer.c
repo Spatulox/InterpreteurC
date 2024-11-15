@@ -14,6 +14,16 @@ Token* createToken(TokenType type, const char* value) {
     return newToken;
 }
 
+void addToken(TokenType type, char *buffer, Token **firstToken, Token **currentToken) {
+    Token *newToken = createToken(type, buffer);
+    if (!*firstToken) {
+        *firstToken = newToken;
+    } else {
+        (*currentToken)->nextToken = newToken;
+    }
+    *currentToken = newToken;
+}
+
 Token* freeAllTokens(Token* firstToken) {
     Token* currentToken = firstToken;
     while (currentToken) {
@@ -49,26 +59,14 @@ Token* lexerCalculator(char* input) {
 
             // Si print
             if (strcmp(buffer, "print") == 0) {
-                Token *newToken = createToken(PRINT, buffer);
-                if (!firstToken) {
-                    firstToken = newToken;
-                } else {
-                    currentToken->nextToken = newToken;
-                }
-                currentToken = newToken;
+                addToken(PRINT, buffer, &firstToken, &currentToken);
             } else {
-                Token *newToken = createToken(VARIABLE , buffer);
-                if (!firstToken) {
-                    firstToken = newToken;
-                } else {
-                    currentToken->nextToken = newToken;
-                }
-                currentToken = newToken;
+                addToken(VARIABLE, buffer, &firstToken, &currentToken);
             }
         }
 
         // Nombre
-        else if (isdigit(input[i]) || (input[i] == '-' && isdigit(input[i + 1]) || (input[i] == '.' && isdigit(input[i+1])) && (currentToken->type != VARIABLE && currentToken->type != NUMBER))) {
+        else if (isdigit(input[i]) || (input[i] == '-' && isdigit(input[i + 1]) || (input[i] == '.' && isdigit(input[i+1])) && (currentToken == NULL || (currentToken->type != VARIABLE && currentToken->type != NUMBER)))) {
             int start = i;
             if (input[i] == '-') {
                 i++;
@@ -83,92 +81,83 @@ Token* lexerCalculator(char* input) {
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
 
-            Token *newToken = createToken(NUMBER, buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
-            }
-            currentToken = newToken;
+            addToken(NUMBER, buffer, &firstToken, &currentToken);
         }
 
-        // Opérateur
-        else if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/' || input[i] == '%') {
+        // Operator // Assignment
+        else if (strchr("+-*/%=", input[i])) {
             buffer[0] = input[i];
             buffer[1] = '\0';
+            TokenType type;
 
-            Token *newToken = createToken(OPERATOR, buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
+            switch (input[i]) {
+                // Opérateur
+                case '+': case '-': case '*': case '/': case '%':
+                    type = OPERATOR;
+                    break;
+
+                // Affectation
+                case '=':
+                    type = ASSIGNMENT;
+                    break;
+                
+                default:
+                    printf("Error when detecting operator/assignment");
+                    return NULL;
             }
-            currentToken = newToken;
+            addToken(type, buffer, &firstToken, &currentToken);
             i++;
         }
 
-        // Parenthèses
-        else if (input[i] == '(') {
+        // Parenthesis / Scope
+        else if (strchr("(){}", input[i])) {
             buffer[0] = input[i];
             buffer[1] = '\0';
+            TokenType type;
 
-            Token *newToken = createToken(PARENTHESIS_OPEN, buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
+            switch (input[i]) {
+                // Parenthèses
+                case '(':
+                    type = PARENTHESIS_OPEN;
+                    break;
+                case ')':
+                    type = PARENTHESIS_CLOSE;
+                    break;
+
+                // Scope
+                case '{':
+                    type = SCOPE_OPEN;
+                    break;
+                case '}':
+                    type = SCOPE_CLOSE;
+                    break;
+                
+                default:
+                    printf("Error when detecting parenthesis/scope");
+                    return NULL;
             }
-            currentToken = newToken;
+            addToken(type, buffer, &firstToken, &currentToken);
             i++;
         }
 
-        else if (input[i] == ')') {
-            buffer[0] = input[i];
-            buffer[1] = '\0';
+        
 
-            Token *newToken = createToken(PARENTHESIS_CLOSE, buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
-            }
-            currentToken = newToken;
-            i++;
-        }
-        // Affectation
-        else if (input[i] == '=') {
-            buffer[0] = input[i];
-            buffer[1] = '\0';
-
-            Token *newToken = createToken(ASSIGNMENT, buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
-            }
-            currentToken = newToken;
-            i++;
-        }
         // chaine de charactère
         else if(input[i] == '"') {
             int start = i;
             i++;
-            while(input[i] != '"' || input[i] != '\0') {
+            while(input[i] != '"' && input[i] != '\0') {
                 i++;
             }
+
             if(input[i] == '\0') {
                 printf("Error: Missing closing quote\n");
                 exit(1);
             }
+            i++;
             strncpy(buffer, &input[start], i - start);
             buffer[i - start] = '\0';
-            Token *newToken = createToken(STRING_TOKEN , buffer);
-            if (!firstToken) {
-                firstToken = newToken;
-            } else {
-                currentToken->nextToken = newToken;
-            }
-            currentToken = newToken;
+            addToken(STRING_TOKEN, buffer, &firstToken, &currentToken);
         }
 
         // Si caractère non reconnu, on avance
