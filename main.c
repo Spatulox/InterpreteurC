@@ -10,6 +10,7 @@
 #define MAX_INSTRUCTION_SIZE 1000
 
 void interpret(char *input);
+int scope = 0;
 
 // ------------------------------------------------------------------------ //
 

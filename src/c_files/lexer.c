@@ -3,6 +3,7 @@
 //
 #include "includes.h"
 #include "lexer.h"
+#include "global.h"
 
 
 
@@ -127,9 +128,14 @@ Token* lexerCalculator(char* input) {
                 // Scope
                 case '{':
                     type = SCOPE_OPEN;
+                    scope ++;
                     break;
                 case '}':
                     type = SCOPE_CLOSE;
+                    scope --;
+                    if(scope < 0){
+                        scope = 0;
+                    }
                     break;
                 
                 default:

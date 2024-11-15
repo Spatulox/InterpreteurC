@@ -53,7 +53,7 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
     if(tokens == NULL){
-        return;
+        return NULL;
     }
     
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
@@ -352,11 +352,11 @@ number eval(ASTNode *node) {
                 }
             } else {
                 if (value.type == INT) {
-                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name, NULL);
+                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name, scope);
                 } else if(value.type == FLOAT) {
-                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name, NULL);
+                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name, scope);
                 } else if(value.type == STRING) {
-                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name, NULL);
+                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name, scope);
                 }
             }
             // if (value.type == INT) {

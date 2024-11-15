@@ -94,7 +94,7 @@ void deleteVariableScopeInList(ListVariable* head, int scope){
     while (head) {
         ListVariable* temp = head;
         head = head->next;
-        if(temp->variable.scope == scope){
+        if(temp->variable.scope >= scope){
             free(temp->variable.varName);
             if(temp->variable.type == STRING_VAR){
                 free(temp->variable.value.stringValue);
