@@ -55,14 +55,21 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 // ------------------------------------------------------------------------ //
 
 void freeOldValueVariable(ListVariable* var) {
-    if(var->variable.type == INT){
-        var->variable.value.intValue = NULL;
-    } else if(var->variable.type == FLOAT){
-        var->variable.value.intValue = NULL;
-    }else if(var->variable.type == STRING){
+
+    if (var == NULL) {
+        return;
+    }
+
+    if(var->variable.type == INT_VAR){
+        var->variable.value.intValue = 0;
+    } else if(var->variable.type == FLOAT_VAR){
+        var->variable.value.floatValue = 0.0;
+    }else if(var->variable.type == STRING_VAR){
         if(var->variable.value.stringValue != NULL){
-            free(var->variable.value.stringValue)
+            free(var->variable.value.stringValue);
         }
+    } else {
+        printf("ERROR : Unknown Var type");
     }
 }
 
