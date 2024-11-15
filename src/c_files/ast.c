@@ -111,6 +111,16 @@ ASTNode *parse_primary(Token **tokens) {
             exit(1);
         }
         return node;
+    } else if (token.type == SCOPE_OPEN) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_OPEN;
+        *tokens = (*tokens)->nextToken;
+        return node;
+    } else if (token.type == SCOPE_CLOSE) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_CLOSE;
+        *tokens = (*tokens)->nextToken;
+        return node;
     } else if (token.type == PRINT) {
         *tokens = (*tokens)->nextToken;
         ASTNode *node = malloc(sizeof(ASTNode));
@@ -379,7 +389,17 @@ number eval(ASTNode *node) {
             }
             return value;
         }
-
+        case AST_SCOPE_OPEN:
+            scope++;
+            break;
+        case AST_SCOPE_CLOSE:
+            deleteVariableScopeInList(globalVariableList, scope);
+            scope--;
+            if (scope < 0) {
+                printf("Error: Too many closing scopes\n");
+                exit(1);
+            }
+            break;
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);
