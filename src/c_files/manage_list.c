@@ -91,19 +91,32 @@ void freeVariableList(ListVariable* head) {
 
 // ------------------------------------------------------------------------ //
 
-void deleteVariableScopeInList(ListVariable* head, int scopeToDelete){
-    while (head) {
-        ListVariable* temp = head;
-        head = head->next;
-        if(temp->variable.scope >= scopeToDelete){
-            free(temp->variable.varName);
-            if(temp->variable.type == STRING_VAR){
-                free(temp->variable.value.stringValue);
+void deleteVariableScopeInList(ListVariable** head, int scopeToDelete) {
+    ListVariable* current = *head;
+    ListVariable* prev = NULL;
+
+    while (current) {
+        if (current->variable.scope >= scopeToDelete) {
+            if (prev == NULL) {
+                *head = current->next;
+            } else {
+                prev->next = current->next;
             }
+
+            free(current->variable.varName);
+            if (current->variable.type == STRING_VAR) {
+                free(current->variable.value.stringValue);
+            }
+            ListVariable* temp = current;
+            current = current->next;
             free(temp);
+        } else {
+            prev = current;
+            current = current->next;
         }
     }
 }
+
 
 // ------------------------------------------------------------------------ //
 

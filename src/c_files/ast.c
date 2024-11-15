@@ -486,7 +486,7 @@ number eval(ASTNode *node) {
             scope++;
             break;
         case AST_SCOPE_CLOSE:
-            deleteVariableScopeInList(globalVariableList, scope);
+            deleteVariableScopeInList(&globalVariableList, scope);
             scope--;
             if (scope < 0) {
                 printf("Error: Too many closing scopes\n");
