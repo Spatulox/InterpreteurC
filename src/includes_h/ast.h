@@ -22,7 +22,8 @@ typedef enum {
     AST_STRING_OP,
     AST_PRINT,
     AST_SCOPE_OPEN,
-    AST_SCOPE_CLOSE
+    AST_SCOPE_CLOSE,
+    AST_COMPARE
 } ASTNodeType;
 
 typedef struct{
@@ -49,6 +50,11 @@ typedef struct ASTNode {
             struct ASTNode *right;
         } binary_op;
         struct {
+            char *comp;
+            struct ASTNode *left;
+            struct ASTNode *right;
+        } compare;
+        struct {
             char *name;
             struct ASTNode *value;
         } assignment;
@@ -58,18 +64,13 @@ typedef struct ASTNode {
     };
 } ASTNode;
 
-typedef struct Node {
-    char *value;
-    TokenType type;
-    struct Node *left;
-    struct Node *right;
-} Node;
-
 //ASTNode *create_number_node(int value);
 ASTNode *create_number_node(const char* value);
 ASTNode *create_string_node(Token **tokens);
 ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op);
+ASTNode *create_comp_node(ASTNode *left, ASTNode *right, char *comp);
 ASTNode* parse_expression(Token **tokens);
+ASTNode *parse_comp(Token **tokens);
 ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);

@@ -83,10 +83,53 @@ Token* lexerCalculator(char* input) {
             buffer[i - start] = '\0';
 
             addToken(NUMBER, buffer, &firstToken, &currentToken);
+        } else if (strchr("<>=!", input[i])) { // Comparateur
+            buffer[0] = input[i];
+            buffer[1] = '\0';
+            TokenType type;
+
+            switch (input[i]) {
+                case '<':
+                    if (input[i + 1] == '=') {
+                        buffer[1] = input[i + 1];
+                        buffer[2] = '\0';
+                        i++;
+                    }
+                    type = COMPARATOR;
+                    break;
+                case '>':
+                    if (input[i + 1] == '=') {
+                        buffer[1] = input[i + 1];
+                        buffer[2] = '\0';
+                        i++;
+                    }
+                    type = COMPARATOR;
+                    break;
+                case '=':
+                    if (input[i + 1] == '=') {
+                        buffer[1] = input[i + 1];
+                        buffer[2] = '\0';
+                        i++;
+                        type = COMPARATOR;
+                    } else {
+                        type = ASSIGNMENT;
+                    }
+                    break;
+                case '!':
+                    if (input[i + 1] == '=') {
+                        buffer[1] = input[i + 1];
+                        buffer[2] = '\0';
+                        i++;
+                    }
+                    type = COMPARATOR;
+                    break;
+            }
+            addToken(type, buffer, &firstToken, &currentToken);
+            i++;
         }
 
-        // Operator // Assignment
-        else if (strchr("+-*/%=", input[i])) {
+        // Operator
+        else if (strchr("+-*/%", input[i])) {
             buffer[0] = input[i];
             buffer[1] = '\0';
             TokenType type;
@@ -95,11 +138,6 @@ Token* lexerCalculator(char* input) {
                 // Opérateur
                 case '+': case '-': case '*': case '/': case '%':
                     type = OPERATOR;
-                    break;
-
-                // Affectation
-                case '=':
-                    type = ASSIGNMENT;
                     break;
                 
                 default:
@@ -140,9 +178,6 @@ Token* lexerCalculator(char* input) {
             addToken(type, buffer, &firstToken, &currentToken);
             i++;
         }
-
-        
-
         // chaine de charactère
         else if(input[i] == '"') {
             int start = i;

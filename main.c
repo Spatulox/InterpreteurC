@@ -48,6 +48,7 @@ void interpret(char *input) {
     ASTNode *ast = parse_expression(&tokens);
     if (ast) eval(ast);
     freeAllTokens(tokens);
+    free_ast(ast);
 }
 
 int main(int argc, char **argv) {
@@ -59,7 +60,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    Node* ast = NULL;
     Log("Manually enter instructions :");
 
     char instruction[MAX_INSTRUCTION_SIZE];
