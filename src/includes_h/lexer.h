@@ -12,6 +12,8 @@ typedef enum TokenType{
     OPERATOR,
     PARENTHESIS_OPEN,
     PARENTHESIS_CLOSE,
+    SCOPE_OPEN,
+    SCOPE_CLOSE,
     ASSIGNMENT,
     VARIABLE,
     STRING_TOKEN,

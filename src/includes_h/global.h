@@ -13,5 +13,6 @@
 #include "structs.h"
 
 extern ListVariable *globalVariableList;
+extern int scope;
 
 #endif //INTERPRETEURC_GLOBAL_H

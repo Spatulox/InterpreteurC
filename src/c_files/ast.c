@@ -15,6 +15,7 @@
 #include "structs.h"
 #include "manage_list.h"
 #include "global.h"
+#include "stringUtils.h"
 
 ASTNode *create_number_node(const char* value) {
     ASTNode *node = malloc(sizeof(ASTNode));
@@ -51,6 +52,10 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
+    if(tokens == NULL){
+        return NULL;
+    }
+    
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         return parse_assignment(tokens);
     }
@@ -87,7 +92,6 @@ ASTNode *parse_primary(Token **tokens) {
     Token token = **tokens;
 
     if (token.type == NUMBER) {
-        //ASTNode *node = create_number_node(atoi(token.value));
         ASTNode *node = create_number_node(token.value);
         *tokens = (*tokens)->nextToken;
         return node;
@@ -106,6 +110,16 @@ ASTNode *parse_primary(Token **tokens) {
             printf("Error: Missing closing parenthesis\n");
             exit(1);
         }
+        return node;
+    } else if (token.type == SCOPE_OPEN) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_OPEN;
+        *tokens = (*tokens)->nextToken;
+        return node;
+    } else if (token.type == SCOPE_CLOSE) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_CLOSE;
+        *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PRINT) {
         *tokens = (*tokens)->nextToken;
@@ -174,7 +188,6 @@ void free_ast(ASTNode *node) {
     free(node);
 }
 
-
 number eval(ASTNode *node) {
     if (node == NULL) {
         printf("Error: NULL node\n");
@@ -200,13 +213,17 @@ number eval(ASTNode *node) {
             ListVariable *var = searchVariableInList(globalVariableList, node->variable.name);
             if (var) {
 //                printf("Evaluating variable: %s with value %d\n", node->variable.name, var->variable.value.intValue);
-                if(var->variable.type == INTVAR){
+                if(var->variable.type == INT_VAR){
                     result.type = INT;
                     result.value.int_value = var->variable.value.intValue;
                     return result;
-                } else if (var->variable.type == FLOATVAR){
+                } else if (var->variable.type == FLOAT_VAR){
                     result.type = FLOAT;
                     result.value.float_value = var->variable.value.floatValue;
+                    return result;
+                } else if(var->variable.type == STRING_VAR){
+                    result.type = STRING;
+                    result.value.string = var->variable.value.stringValue;
                     return result;
                 }
             } else {
@@ -219,19 +236,45 @@ number eval(ASTNode *node) {
             number right = eval(node->binary_op.right);
 //            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
-                case '+':
-                    if(left.type == INT && right.type == INT){
+                case '+': {
+                    if (left.type == STRING || right.type == STRING ) {
+                        unsigned long long len = 0;
+                        unsigned long long lenRight = 0;
+                        unsigned long long lenLeft = 0;
+
+                        char *resultString = malloc(1);
+                        if (resultString == NULL) {
+                            printf("Erreur d'allocation mémoire\n");
+                            number nullValue;
+                            nullValue.type = NULL_TYPE;
+                            return nullValue;
+                        }
+                        resultString[0] = '\0';
+                        castNumberIntoString(left, &resultString);
+                        castNumberIntoString(right, &resultString);
+                        result.type = STRING;
+                        result.value.string = resultString;
+                        return result;
+                    }
+
+                    if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value + right.value.int_value;
                         return result;
                     }
                     result.type = FLOAT;
                     result.value.float_value =
-                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) +
-                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                            (left.type == INT ? (float) left.value.int_value : left.value.float_value) +
+                            (right.type == INT ? (float) right.value.int_value : right.value.float_value);
                     return result;
+                }
 
                 case '-':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value - right.value.int_value;
@@ -244,6 +287,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '*':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if (left.type == INT && right.type == INT) {
                         result.type = INT;
                         result.value.int_value = left.value.int_value * right.value.int_value;
@@ -256,6 +304,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '/':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Division by zero\n");
@@ -268,6 +321,11 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '%':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Modulo by zero\n");
@@ -293,22 +351,27 @@ number eval(ASTNode *node) {
             number value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
             if (existingVar) {
+                freeOldValueVariable(existingVar);
                 existingVar->variable.type = value.type;
                 if (value.type == INT) {
                     existingVar->variable.value.intValue = value.value.int_value;
-                } else {
+                } else if(value.type == FLOAT) {
                     existingVar->variable.value.floatValue = value.value.float_value;
+                } else if(value.type == STRING) {
+                    existingVar->variable.value.stringValue = strdup(value.value.string);
                 }
             } else {
                 if (value.type == INT) {
-                    addVariableToList(&globalVariableList, INTVAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
-                } else {
-                    addVariableToList(&globalVariableList, FLOATVAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
+                } else if(value.type == FLOAT) {
+                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                } else if(value.type == STRING) {
+                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
                 }
             }
             // if (value.type == INT) {
             //     printf("Assigned variable: %s = %d\n", node->assignment.name, value.value.int_value);
-            // } else {
+            // } else if (value.type == FLOAT) {
             //     printf("Assigned variable: %s = %f\n", node->assignment.name, value.value.float_value);
             // }
             return value;
@@ -319,12 +382,24 @@ number eval(ASTNode *node) {
                 printf("PRINT -> %d\n", value.value.int_value);
             } else if(value.type == FLOAT) {
                 printf("PRINT -> %f\n", value.value.float_value);
+            } else if(value.type == STRING) {
+                printf("PRINT -> %s\n", value.value.string);
             } else {
                 printf("Wrong var type");
             }
             return value;
         }
-
+        case AST_SCOPE_OPEN:
+            scope++;
+            break;
+        case AST_SCOPE_CLOSE:
+            deleteVariableScopeInList(globalVariableList, scope);
+            scope--;
+            if (scope < 0) {
+                printf("Error: Too many closing scopes\n");
+                exit(1);
+            }
+            break;
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);

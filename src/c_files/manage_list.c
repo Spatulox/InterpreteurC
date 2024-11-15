@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <global.h>
 
 #include "../includes_h/structs.h"
 #include "../includes_h/log.h"
@@ -14,8 +15,9 @@
 ListVariable* createVariableNode(Type type, Value value, char* varName) {
     ListVariable* node = malloc(sizeof(ListVariable));
     if (node) {
-        node->variable.type = type;  // Changez TYPE par type
+        node->variable.type = type;
         node->variable.value = value;
+        node->variable.scope = scope;
         node->variable.varName = strdup(varName);
         node->next = NULL;
     } else {
@@ -54,12 +56,52 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 
 // ------------------------------------------------------------------------ //
 
+void freeOldValueVariable(ListVariable* var) {
+
+    if (var == NULL) {
+        return;
+    }
+
+    if(var->variable.type == INT_VAR){
+        var->variable.value.intValue = 0;
+    } else if(var->variable.type == FLOAT_VAR){
+        var->variable.value.floatValue = 0.0;
+    }else if(var->variable.type == STRING_VAR){
+        if(var->variable.value.stringValue != NULL){
+            free(var->variable.value.stringValue);
+        }
+    } else {
+        printf("ERROR : Unknown Var type");
+    }
+}
+
+// ------------------------------------------------------------------------ //
+
 void freeVariableList(ListVariable* head) {
     while (head) {
         ListVariable* temp = head;
         head = head->next;
         free(temp->variable.varName);
+        if(temp->variable.type == STRING_VAR){
+            free(temp->variable.value.stringValue);
+        }
         free(temp);
+    }
+}
+
+// ------------------------------------------------------------------------ //
+
+void deleteVariableScopeInList(ListVariable* head, int scopeToDelete){
+    while (head) {
+        ListVariable* temp = head;
+        head = head->next;
+        if(temp->variable.scope >= scopeToDelete){
+            free(temp->variable.varName);
+            if(temp->variable.type == STRING_VAR){
+                free(temp->variable.value.stringValue);
+            }
+            free(temp);
+        }
     }
 }
 
@@ -70,14 +112,14 @@ void printListsVar(ListVariable* variableList) {
     while (currentVar != NULL) {
         printf("Name: %s, Type: ", currentVar->variable.varName);
         switch (currentVar->variable.type) {
-            case INTVAR:
-                printf("INT, Value: %d\n", currentVar->variable.value.intValue);
+            case INT_VAR:
+                printf("INT, Value: %d\n, Scope : %d", currentVar->variable.value.intValue, currentVar->variable.scope);
                 break;
-            case FLOATVAR:
-                printf("INT, Value: %f\n", currentVar->variable.value.floatValue);
+            case FLOAT_VAR:
+                printf("INT, Value: %f\n, Scope : %d", currentVar->variable.value.floatValue, currentVar->variable.scope);
                 break;
-            case CHARVAR:
-                printf("CHAR, Value: %s\n", currentVar->variable.value.stringValue);
+            case STRING_VAR:
+                printf("CHAR, Value: %s\n, Scope : %d", currentVar->variable.value.stringValue, currentVar->variable.scope);
                 break;
             default:
                 printf("Unknown type\n");

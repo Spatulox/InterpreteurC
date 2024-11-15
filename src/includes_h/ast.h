@@ -15,20 +15,25 @@
 
 typedef enum {
     AST_NUMBER,
+    AST_STRING,
     AST_VARIABLE,
     AST_ASSIGNMENT,
     AST_BINARY_OP,
-    AST_PRINT
+    AST_PRINT,
+    AST_SCOPE_OPEN,
+    AST_SCOPE_CLOSE
 } ASTNodeType;
 
 typedef struct{
     enum{
         INT,
-        FLOAT
+        FLOAT,
+        STRING
     } type;
     union {
         int int_value;
         float float_value;
+        char* string;
     } value;
 } number;
 

@@ -5,9 +5,10 @@
 #ifndef INTERPRETEURC_STRUCTS_H
 #define INTERPRETEURC_STRUCTS_H
 typedef enum {
-    INTVAR,
-    FLOATVAR,
-    CHARVAR
+    INT_VAR,
+    FLOAT_VAR,
+    STRING_VAR,
+    NULL_TYPE
 }Type;
 
 typedef union {
@@ -21,6 +22,7 @@ typedef struct {
     Type type;
     Value value;
     char* varName;
+    int scope;
 }Variable;
 
 // CHAINED LIST
