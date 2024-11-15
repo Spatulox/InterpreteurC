@@ -52,6 +52,10 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
 
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
+    if(tokens == NULL){
+        return NULL;
+    }
+    
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         return parse_assignment(tokens);
     }
@@ -106,6 +110,16 @@ ASTNode *parse_primary(Token **tokens) {
             printf("Error: Missing closing parenthesis\n");
             exit(1);
         }
+        return node;
+    } else if (token.type == SCOPE_OPEN) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_OPEN;
+        *tokens = (*tokens)->nextToken;
+        return node;
+    } else if (token.type == SCOPE_CLOSE) {
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_SCOPE_CLOSE;
+        *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PRINT) {
         *tokens = (*tokens)->nextToken;
@@ -375,7 +389,17 @@ number eval(ASTNode *node) {
             }
             return value;
         }
-
+        case AST_SCOPE_OPEN:
+            scope++;
+            break;
+        case AST_SCOPE_CLOSE:
+            deleteVariableScopeInList(globalVariableList, scope);
+            scope--;
+            if (scope < 0) {
+                printf("Error: Too many closing scopes\n");
+                exit(1);
+            }
+            break;
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);

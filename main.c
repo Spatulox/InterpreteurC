@@ -10,6 +10,7 @@
 #define MAX_INSTRUCTION_SIZE 1000
 
 void interpret(char *input);
+int scope = 0;
 
 // ------------------------------------------------------------------------ //
 
@@ -47,8 +48,6 @@ void interpret(char *input) {
     ASTNode *ast = parse_expression(&tokens);
     if (ast) eval(ast);
     freeAllTokens(tokens);
-    free_ast(ast);
-    freeVariableList(globalVariableList);
 }
 
 int main(int argc, char **argv) {
