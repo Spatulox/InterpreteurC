@@ -54,6 +54,20 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 
 // ------------------------------------------------------------------------ //
 
+void freeOldValueVariable(ListVariable* var) {
+    if(var->variable.type == INT){
+        var->variable.value.intValue = NULL;
+    } else if(var->variable.type == FLOAT){
+        var->variable.value.intValue = NULL;
+    }else if(var->variable.type == STRING){
+        if(var->variable.value.stringValue != NULL){
+            free(var->variable.value.stringValue)
+        }
+    }
+}
+
+// ------------------------------------------------------------------------ //
+
 void freeVariableList(ListVariable* head) {
     while (head) {
         ListVariable* temp = head;
