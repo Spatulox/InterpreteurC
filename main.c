@@ -32,14 +32,6 @@ int readAndExecuteInstructionFile(const char *fileName) {
 
 // ------------------------------------------------------------------------ //
 
-int executingUserInstructions(Node** ast, char* instruction) {
-    interpret(instruction);
-    return 0;
-}
-
-
-// ------------------------------------------------------------------------ //
-
 ListVariable *globalVariableList = NULL;
 
 //int main() {
@@ -55,6 +47,8 @@ void interpret(char *input) {
     ASTNode *ast = parse_expression(&tokens);
     if (ast) eval(ast);
     freeAllTokens(tokens);
+    free_ast(ast);
+    freeVariableList(globalVariableList);
 }
 
 int main(int argc, char **argv) {
@@ -93,7 +87,7 @@ int main(int argc, char **argv) {
             printf("\n");
         } else {
             emptyLineCount = 0;
-            executingUserInstructions(&ast, instruction);
+            interpret(instruction);
         }
     }
 
