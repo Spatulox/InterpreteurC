@@ -27,7 +27,7 @@ void test_createVariableNode() {
     // Test INT
     Value intValue;
     intValue.intValue = 42;
-    ListVariable* intNode = createVariableNode(INT_VAR, intValue, "intVar");
+    ListVariable* intNode = createVariableNode(INT_VAR, intValue, "intVar", NULL);
 
     assert(intNode != NULL);
     assert(intNode->variable.type == INT_VAR);
@@ -41,7 +41,7 @@ void test_createVariableNode() {
     // Test CHAR
     Value charValue;
     charValue.stringValue = "test";
-    ListVariable* charNode = createVariableNode(STRING_VAR, charValue, "charVar");
+    ListVariable* charNode = createVariableNode(STRING_VAR, charValue, "charVar", NULL);
 
     assert(charNode != NULL);
     assert(charNode->variable.type == STRING_VAR);
@@ -63,7 +63,7 @@ void test_addVariableToList() {
     // Add INT
     Value intValue;
     intValue.intValue = 10;
-    addVariableToList(&list, INT_VAR, intValue, "intVar");
+    addVariableToList(&list, INT_VAR, intValue, "intVar", NULL);
 
     assert(list != NULL);
     assert(list->variable.type == INT_VAR);
@@ -74,7 +74,7 @@ void test_addVariableToList() {
     // add a CHAR
     Value charValue;
     charValue.stringValue = "hello";
-    addVariableToList(&list, STRING_VAR, charValue, "charVar");
+    addVariableToList(&list, STRING_VAR, charValue, "charVar", NULL);
 
     assert(list != NULL);
     assert(list->variable.type == STRING_VAR);
@@ -102,9 +102,9 @@ void test_searchVariableInList() {
     intValue2.intValue = 20;
     charValue.stringValue = strdup("hello");
 
-    addVariableToList(&list, INT_VAR, intValue1, "intVar1");
-    addVariableToList(&list, INT_VAR, intValue2, "intVar2");
-    addVariableToList(&list, STRING_VAR, charValue, "charVar");
+    addVariableToList(&list, INT_VAR, intValue1, "intVar1", NULL);
+    addVariableToList(&list, INT_VAR, intValue2, "intVar2", NULL);
+    addVariableToList(&list, STRING_VAR, charValue, "charVar", NULL);
 
     // Test 1: Recherche d'une variable existante (INT)
     ListVariable* result1 = searchVariableInList(list, "intVar1");

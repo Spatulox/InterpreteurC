@@ -81,8 +81,8 @@ void freeVariableList(ListVariable* head) {
         ListVariable* temp = head;
         head = head->next;
         free(temp->variable.varName);
-        if(temp->variable.type == STRING){
-            free(temp->variable.value.stringValue)
+        if(temp->variable.type == STRING_VAR){
+            free(temp->variable.value.stringValue);
         }
         free(temp);
     }
@@ -96,8 +96,8 @@ void deleteVariableScopeInList(ListVariable* head, int scope){
         head = head->next;
         if(temp->variable.scope == scope){
             free(temp->variable.varName);
-            if(temp->variable.type == STRING){
-                free(temp->variable.value.stringValue)
+            if(temp->variable.type == STRING_VAR){
+                free(temp->variable.value.stringValue);
             }
             free(temp);
         }
