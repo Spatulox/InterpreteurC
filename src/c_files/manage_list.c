@@ -80,7 +80,26 @@ void freeVariableList(ListVariable* head) {
         ListVariable* temp = head;
         head = head->next;
         free(temp->variable.varName);
+        if(temp->variable.type == STRING){
+            free(temp->variable.value.stringValue)
+        }
         free(temp);
+    }
+}
+
+// ------------------------------------------------------------------------ //
+
+void deleteVariableScopeInList(ListVariable* head, int scope){
+    while (head) {
+        ListVariable* temp = head;
+        head = head->next;
+        if(temp->variable.scope == scope){
+            free(temp->variable.varName);
+            if(temp->variable.type == STRING){
+                free(temp->variable.value.stringValue)
+            }
+            free(temp);
+        }
     }
 }
 
@@ -92,13 +111,13 @@ void printListsVar(ListVariable* variableList) {
         printf("Name: %s, Type: ", currentVar->variable.varName);
         switch (currentVar->variable.type) {
             case INT_VAR:
-                printf("INT, Value: %d\n", currentVar->variable.value.intValue);
+                printf("INT, Value: %d\n, Scope : %d", currentVar->variable.value.intValue, currentVar->variable.scope);
                 break;
             case FLOAT_VAR:
-                printf("INT, Value: %f\n", currentVar->variable.value.floatValue);
+                printf("INT, Value: %f\n, Scope : %d", currentVar->variable.value.floatValue, currentVar->variable.scope);
                 break;
             case STRING_VAR:
-                printf("CHAR, Value: %s\n", currentVar->variable.value.stringValue);
+                printf("CHAR, Value: %s\n, Scope : %d", currentVar->variable.value.stringValue, currentVar->variable.scope);
                 break;
             default:
                 printf("Unknown type\n");
