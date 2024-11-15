@@ -32,6 +32,14 @@ int readAndExecuteInstructionFile(const char *fileName) {
 
 // ------------------------------------------------------------------------ //
 
+int executingUserInstructions(Node** ast, char* instruction) {
+    interpret(instruction);
+    return 0;
+}
+
+
+// ------------------------------------------------------------------------ //
+
 ListVariable *globalVariableList = NULL;
 
 //int main() {
@@ -87,7 +95,7 @@ int main(int argc, char **argv) {
             printf("\n");
         } else {
             emptyLineCount = 0;
-            interpret(instruction);
+            executingUserInstructions(&ast, instruction);
         }
     }
 
