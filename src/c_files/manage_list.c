@@ -11,11 +11,12 @@
 // ------------------------------------------------------------------------ //
 
 
-ListVariable* createVariableNode(Type type, Value value, char* varName) {
+ListVariable* createVariableNode(Type type, Value value, char* varName, int scope) {
     ListVariable* node = malloc(sizeof(ListVariable));
     if (node) {
-        node->variable.type = type;  // Changez TYPE par type
+        node->variable.type = type;
         node->variable.value = value;
+        node->variable.scope = scope;
         node->variable.varName = strdup(varName);
         node->next = NULL;
     } else {
@@ -27,8 +28,8 @@ ListVariable* createVariableNode(Type type, Value value, char* varName) {
 
 // ------------------------------------------------------------------------ //
 
-void addVariableToList(ListVariable** start, Type type, Value value, char* varName) {
-    ListVariable* newNode = createVariableNode(type, value, varName);
+void addVariableToList(ListVariable** start, Type type, Value value, char* varName, int scope) {
+    ListVariable* newNode = createVariableNode(type, value, varName, scope);
     if (newNode) {
         newNode->next = (struct ListVariable *) *start;
         *start = newNode;
