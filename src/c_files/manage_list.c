@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <global.h>
 
 #include "../includes_h/structs.h"
 #include "../includes_h/log.h"
@@ -11,7 +12,7 @@
 // ------------------------------------------------------------------------ //
 
 
-ListVariable* createVariableNode(Type type, Value value, char* varName, int scope) {
+ListVariable* createVariableNode(Type type, Value value, char* varName) {
     ListVariable* node = malloc(sizeof(ListVariable));
     if (node) {
         node->variable.type = type;
@@ -28,8 +29,8 @@ ListVariable* createVariableNode(Type type, Value value, char* varName, int scop
 
 // ------------------------------------------------------------------------ //
 
-void addVariableToList(ListVariable** start, Type type, Value value, char* varName, int scope) {
-    ListVariable* newNode = createVariableNode(type, value, varName, scope);
+void addVariableToList(ListVariable** start, Type type, Value value, char* varName) {
+    ListVariable* newNode = createVariableNode(type, value, varName);
     if (newNode) {
         newNode->next = (struct ListVariable *) *start;
         *start = newNode;
@@ -90,11 +91,11 @@ void freeVariableList(ListVariable* head) {
 
 // ------------------------------------------------------------------------ //
 
-void deleteVariableScopeInList(ListVariable* head, int scope){
+void deleteVariableScopeInList(ListVariable* head, int scopeToDelete){
     while (head) {
         ListVariable* temp = head;
         head = head->next;
-        if(temp->variable.scope >= scope){
+        if(temp->variable.scope >= scopeToDelete){
             free(temp->variable.varName);
             if(temp->variable.type == STRING_VAR){
                 free(temp->variable.value.stringValue);

@@ -133,7 +133,7 @@ Token* lexerCalculator(char* input) {
                 case '}':
                     type = SCOPE_CLOSE;
                     scope --;
-                    if(scope < 0){
+                    if(scope < 0) {
                         scope = 0;
                     }
                     break;
