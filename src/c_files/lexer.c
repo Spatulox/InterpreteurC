@@ -100,6 +100,10 @@ Token* lexerCalculator(char* input) {
                 case '=':
                     type = ASSIGNMENT;
                     break;
+                
+                default:
+                    printf("Error when detecting operator/assignment");
+                    return NULL;
             }
             addToken(type, buffer, &firstToken, &currentToken);
             i++;
@@ -127,6 +131,10 @@ Token* lexerCalculator(char* input) {
                 case '}':
                     type = SCOPE_CLOSE;
                     break;
+                
+                default:
+                    printf("Error when detecting parenthesis/scope");
+                    return NULL;
             }
             addToken(type, buffer, &firstToken, &currentToken);
             i++;
