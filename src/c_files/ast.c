@@ -396,6 +396,24 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '%':
+                    if (left.type == STRING && right.type == STRING) {
+                        // Obtenir la longueur de la sous-chaîne (right)
+                        int lenRight = (int)strlen(right.value.string);
+                        char *currPtr = left.value.string; // Pointeur pour parcourir la chaîne principale
+                        int counter = 0;
+
+                        // Parcourir la chaîne principale à la recherche de la sous-chaîne
+                        while ((currPtr = strstr(currPtr, right.value.string)) != NULL) {
+                            counter++; // Incrémenter le compteur pour chaque occurrence trouvée
+                            currPtr += lenRight; // Déplacer le pointeur après l'occurrence trouvée
+                        }
+
+                        // Préparer le résultat
+                        result.type = INT;
+                        result.value.int_value = counter; // Stocker le nombre d'occurrences
+                        return result;
+                    }
+
                     if(castStringIntoNumber(&left, &right) != 0){
                         result.type = NULL_TYPE;
                         return result;
