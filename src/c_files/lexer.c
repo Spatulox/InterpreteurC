@@ -103,6 +103,24 @@ Token* lexerCalculator(char* input) {
             switch (input[i]) {
                 // Opérateur
                 case '+': case '-': case '*': case '/': case '%':
+                    if(input[i] == '+' && input[i+1] == '+' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"+", &firstToken, &currentToken);
+                        addToken(NUMBER, "1", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
+                    if(input[i] == '-' && input[i+1] == '-' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"-", &firstToken, &currentToken);
+                        addToken(NUMBER, "1", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
                     type = OPERATOR;
                     break;
 
