@@ -42,12 +42,21 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
     return node;
 }
 
-ASTNode *create_comp_node(ASTNode *left, ASTNode *right, char *comp) {
+ASTNode *create_string_op_node(ASTNode *left, ASTNode *right, char op) {
     ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_COMPARE;
-    node->compare.left = left;
-    node->compare.right = right;
-    node->compare.comp = comp;
+    node->type = AST_STRING_OP;
+    node->binary_op.op = op;
+    node->binary_op.left = left;
+    node->binary_op.right = right;
+    return node;
+}
+
+ASTNode *create_string_node(Token** tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_STRING;
+    node->number.type = STRING;
+    node->number.value.string = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
     return node;
 }
 
@@ -61,35 +70,35 @@ ASTNode *parse_expression(Token **tokens) {
         return parse_assignment(tokens);
     }
 
-//    if (*tokens
-//        && ((*tokens)->type == VARIABLE || (*tokens)->type == NUMBER)
-//        && (*tokens)->nextToken && (*tokens)->nextToken->type == COMPARATOR
-//        && (*tokens)->nextToken->nextToken && ((*tokens)->nextToken->nextToken->type == VARIABLE || (*tokens)->nextToken->nextToken->type == NUMBER)) {
-//        printf("COMPARATOR\n");
-//        return parse_comp(tokens);
-//    }
+    ASTNode *node;
 
-    ASTNode *node = parse_term(tokens);
-
-    while (*tokens != NULL && (*tokens)->type == OPERATOR &&
-           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')) {
-        char op = (*tokens)->value[0];
-        *tokens = (*tokens)->nextToken;
-        ASTNode *right = parse_term(tokens);
-        node = create_binary_op_node(node, right, op);
+    // When starting with string
+    if (*tokens && (*tokens)->type == STRING_TOKEN) {
+        node = create_string_node(tokens);
+    } else {
+        node = parse_term(tokens);
     }
 
-    return node;
-}
+    while (*tokens != NULL && (*tokens)->type == OPERATOR /*&&
+           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')*/) {
+        char op = (*tokens)->value[0];
+        *tokens = (*tokens)->nextToken;
 
-ASTNode *parse_comp(Token **tokens) {
-    // 1 == 2
-    ASTNode *node = parse_expression(tokens);
-    *tokens = (*tokens)->nextToken;
-    char *comp = strdup((*tokens)->value);
-    *tokens = (*tokens)->nextToken;
-    ASTNode *right = parse_expression(tokens);
-    node = create_comp_node(node, right, comp);
+        // After an operator
+        ASTNode *right;
+        if ((*tokens)->type == STRING_TOKEN) {
+            right = create_string_node(tokens);
+        } else {
+            right = parse_term(tokens);
+        }
+
+        if (node->type == AST_STRING || right->type == AST_STRING) {
+            node = create_string_op_node(node, right, op);
+        } else {
+            node = create_binary_op_node(node, right, op);
+        }
+    }
+
     return node;
 }
 
@@ -121,17 +130,13 @@ ASTNode *parse_primary(Token **tokens) {
         node->variable.name = strdup(token.value);
         *tokens = (*tokens)->nextToken;
         return node;
+    }
+    else if (token.type == STRING_TOKEN) {
+        Token *tokenTmp = *tokens;
+        ASTNode *node = create_string_node(&tokenTmp);
+        *tokens = (*tokens)->nextToken;
+        return node;
     } else if (token.type == PARENTHESIS_OPEN) {
-        Token *tmp = *tokens;
-        while((*tokens)->type != PARENTHESIS_CLOSE){
-            printf("parse_primary\n");
-            *tokens = (*tokens)->nextToken;
-            if ((*tokens)->type == COMPARATOR) {
-                printf("if\n");
-                return parse_comp(&tmp);
-            }
-        }
-        *tokens = tmp;
         *tokens = (*tokens)->nextToken;
         ASTNode *node = parse_expression(tokens);
         if ((*tokens)->type == PARENTHESIS_CLOSE) {
@@ -157,8 +162,6 @@ ASTNode *parse_primary(Token **tokens) {
         node->type = AST_PRINT;
         node->print.value = parse_expression(tokens);
         return node;
-    } else if (token.type == COMPARATOR) {
-
     }
 
     printf("Error: Unrecognized token in parse_primary\n");
