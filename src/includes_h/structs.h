@@ -27,7 +27,6 @@ typedef struct {
     Value value;
     char* varName;
     int scope;
-    ListVariable *array; // Next value in the array
 }Variable;
 
 // CHAINED LIST

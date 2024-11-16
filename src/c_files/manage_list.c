@@ -64,22 +64,27 @@ void freeOldValueVariable(ListVariable* var) {
 
     switch (var->variable.type) {
         case INT_VAR:
-            var->variable.value.intValue = 0; // Initialiser à 0 pour les entiers
+            var->variable.value.intValue = 0;
             break;
         case FLOAT_VAR:
-            var->variable.value.floatValue = 0.0; // Initialiser à 0.0 pour les flottants
+            var->variable.value.floatValue = 0.0;
             break;
         case STRING_VAR:
             if (var->variable.value.stringValue != NULL) {
-                free(var->variable.value.stringValue); // Libérer la mémoire pour les chaînes
-                var->variable.value.stringValue = NULL; // Optionnel : mettre à NULL après libération
+                free(var->variable.value.stringValue);
+                var->variable.value.stringValue = NULL;
             }
             break;
-        case ARRAY_VAR:
-            freeOldValueVariable(var->variable.array);
+        case ARRAY_VAR: {
+            ListVariable *currentArray = var->variable.value.array;
+            while (currentArray != NULL) {
+                freeOldValueVariable(currentArray);
+                currentArray = currentArray->next;
+            }
             break;
+        }
         default:
-            printf("ERROR: Unknown Var type\n"); // Gérer les types inconnus
+            printf("ERROR: Unknown Var type\n");
             break;
     }
 
@@ -88,6 +93,9 @@ void freeOldValueVariable(ListVariable* var) {
 // ------------------------------------------------------------------------ //
 
 void freeVariableList(ListVariable* head) {
+    if(head == NULL){
+        return;
+    }
     while (head) {
         ListVariable* temp = head;
         head = head->next;
@@ -96,7 +104,7 @@ void freeVariableList(ListVariable* head) {
             free(temp->variable.value.stringValue);
         }
         if(temp->variable.type == ARRAY_VAR){
-            freeVariableList(temp->variable.array);
+            freeVariableList(temp->variable.value.array);
         }
         free(temp);
     }
