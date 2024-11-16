@@ -18,7 +18,10 @@ typedef enum TokenType{
     VARIABLE,
     STRING_TOKEN,
     PRINT,
-    COMPARATOR
+    COMPARATOR,
+    IF,
+    ELSE,
+    WHILE
 } TokenType;
 typedef struct Token {
     TokenType type;

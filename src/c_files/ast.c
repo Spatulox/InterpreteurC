@@ -48,6 +48,13 @@ void free_ast(ASTNode *node) {
         case AST_SCOPE_OPEN:
         case AST_SCOPE_CLOSE:
             break;
+        case AST_COMPARE:
+            free(node->compare.comp);
+            break;
+        case AST_IF:
+        case AST_LOOP:
+        case AST_BLOCK:
+            break;
         default:
             printf("Unknown node type %d in free_ast\n", node->type);
             break;
@@ -319,6 +326,13 @@ number eval(ASTNode *node) {
                 exit(1);
             }
             break;
+        case AST_COMPARE:
+        case AST_IF:
+        case AST_LOOP:
+        case AST_BLOCK:
+            printf("Coucou WELP");
+            break;
+
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);

@@ -111,16 +111,74 @@ ASTNode *parse_expression(Token **tokens) {
     return node;
 }
 
-ASTNode *parse_comp(Token **tokens) {
-    // 1 == 2
-    ASTNode *node = parse_expression(tokens);
+ASTNode *parse_block(Token **tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_BLOCK;
+    node->block.statements = NULL;
+    node->block.statement_count = 0;
+
+    while ((*tokens)->type != SCOPE_CLOSE) {
+        ASTNode *statement = parse_expression(tokens);
+        node->block.statements = realloc(node->block.statements, (node->block.statement_count + 1) * sizeof(ASTNode*));
+        node->block.statements[node->block.statement_count++] = statement;
+    }
+
     *tokens = (*tokens)->nextToken;
-    char *comp = strdup((*tokens)->value);
-    *tokens = (*tokens)->nextToken;
-    ASTNode *right = parse_expression(tokens);
-    node = create_comp_node(node, right, comp);
     return node;
 }
+
+
+
+ASTNode *parse_condition_or_loop(Token **tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    enum TokenType typeBkp = (*tokens)->type;
+
+    if ((*tokens)->type != IF && (*tokens)->type != WHILE) {
+        printf("Error: Expected 'if' or 'while' keyword\n");
+        exit(1);
+    }
+    *tokens = (*tokens)->nextToken;
+
+    // Parser la condition
+    ASTNode *condition = parse_expression(tokens);
+
+    // Vérifier le début du bloc
+    if ((*tokens)->type != SCOPE_OPEN) {
+        printf("Error: Expected '{' after %s condition\n", typeBkp == IF ? "if" : "while");
+        exit(1);
+    }
+    *tokens = (*tokens)->nextToken;
+
+    if (typeBkp == IF) {
+        node->type = AST_IF;
+        node->if_statement.condition = condition;
+        node->if_statement.if_branch = parse_block(tokens);
+        node->if_statement.else_branch = NULL;
+
+        // Gérer le "else" pour les conditions "if"
+        if ((*tokens)->type == ELSE) {
+            *tokens = (*tokens)->nextToken;
+
+            if ((*tokens)->type == SCOPE_OPEN) {
+                *tokens = (*tokens)->nextToken;
+                node->if_statement.else_branch = parse_block(tokens);
+            } else if ((*tokens)->type == IF) {
+                // else if
+                node->if_statement.else_branch = parse_condition_or_loop(tokens);
+            } else {
+                printf("Error: Expected '{' or 'if' after 'else'\n");
+                exit(1);
+            }
+        }
+    } else {
+        node->type = AST_LOOP;
+        node->while_loop.condition = condition;
+        node->while_loop.body = parse_block(tokens);
+    }
+
+    return node;
+}
+
 
 ASTNode *parse_term(Token **tokens) {
     ASTNode *node = parse_primary(tokens);
@@ -136,64 +194,139 @@ ASTNode *parse_term(Token **tokens) {
     return node;
 }
 
+ASTNode *parse_comparator(Token **tokens) {
+    ASTNode *left = parse_expression(tokens);
+
+    if ((*tokens)->type != COMPARATOR) {
+        printf("Error: Expected comparator\n");
+        exit(1);
+    }
+
+    char *comp = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
+
+    ASTNode *right = parse_expression(tokens);
+
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_COMPARE;
+    node->compare.left = left;
+    node->compare.right = right;
+    node->compare.comp = comp;
+
+    return node;
+}
 
 ASTNode *parse_primary(Token **tokens) {
     Token token = **tokens;
+    ASTNode *node;
 
-    if (token.type == NUMBER) {
-        ASTNode *node = create_number_node(token.value);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == VARIABLE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_VARIABLE;
-        node->variable.name = strdup(token.value);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    }
-    else if (token.type == STRING_TOKEN) {
-        Token *tokenTmp = *tokens;
-        ASTNode *node = create_string_node(&tokenTmp);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == PARENTHESIS_OPEN) {
-        Token *tmp = *tokens;
-        while((*tokens)->type != PARENTHESIS_CLOSE){
-            printf("parse_primary\n");
+    switch (token.type) {
+        case NUMBER:
+            node = create_number_node(token.value);
             *tokens = (*tokens)->nextToken;
-            if ((*tokens)->type == COMPARATOR) {
-                printf("if\n");
-                return parse_comp(&tmp);
+            return node;
+
+        case VARIABLE:
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_VARIABLE;
+            node->variable.name = strdup(token.value);
+            *tokens = (*tokens)->nextToken;
+            return node;
+
+        case STRING_TOKEN:
+        {
+            Token *tokenTmp = *tokens;
+            node = create_string_node(&tokenTmp);
+            *tokens = (*tokens)->nextToken;
+            return node;
+        }
+
+        /*case PARENTHESIS_OPEN:
+        {
+            Token *tmp = *tokens;
+            while((*tokens)->type != PARENTHESIS_CLOSE){
+                printf("parse_primary\n");
+                *tokens = (*tokens)->nextToken;
+                if ((*tokens)->type == COMPARATOR) {
+                    printf("comparator\n");
+                    return parse_comparator(&tmp);
+                }
             }
-        }
-        *tokens = tmp;
-        *tokens = (*tokens)->nextToken;
-        ASTNode *node = parse_expression(tokens);
-        if ((*tokens)->type == PARENTHESIS_CLOSE) {
+            *tokens = tmp;
             *tokens = (*tokens)->nextToken;
-        } else {
-            printf("Error: Missing closing parenthesis\n");
-            exit(1);
-        }
-        return node;
-    } else if (token.type == SCOPE_OPEN) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_SCOPE_OPEN;
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == SCOPE_CLOSE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_SCOPE_CLOSE;
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == PRINT) {
-        *tokens = (*tokens)->nextToken;
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_PRINT;
-        node->print.value = parse_expression(tokens);
-        return node;
-    } else if (token.type == COMPARATOR) {
+            node = parse_expression(tokens);
+            if ((*tokens)->type == PARENTHESIS_CLOSE) {
+                *tokens = (*tokens)->nextToken;
+            } else {
+                printf("Error: Missing closing parenthesis\n");
+                exit(1);
+            }
+            return node;
+        }*/
 
+        case PARENTHESIS_OPEN:
+        {
+            *tokens = (*tokens)->nextToken;
+            node = parse_expression(tokens);
+
+            if ((*tokens)->type == COMPARATOR) {
+                char *comp = strdup((*tokens)->value);
+                *tokens = (*tokens)->nextToken;
+                ASTNode *right = parse_expression(tokens);
+                node = create_comp_node(node, right, comp);
+                free(comp);
+            }
+
+            if ((*tokens)->type == PARENTHESIS_CLOSE) {
+                *tokens = (*tokens)->nextToken;
+            } else {
+                printf("Error: Missing closing parenthesis\n");
+                exit(1);
+            }
+
+            return node;
+        }
+
+        case SCOPE_OPEN:
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_SCOPE_OPEN;
+            *tokens = (*tokens)->nextToken;
+            return node;
+
+        case SCOPE_CLOSE:
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_SCOPE_CLOSE;
+            *tokens = (*tokens)->nextToken;
+            return node;
+
+        case PRINT:
+            *tokens = (*tokens)->nextToken;
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_PRINT;
+            node->print.value = parse_expression(tokens);
+            return node;
+
+        case COMPARATOR:
+            return parse_comparator(tokens);
+            break;
+
+        case IF:
+            *tokens = (*tokens)->nextToken;
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_IF;
+            node->print.value = parse_expression(tokens);
+            return node;
+        case ELSE:
+        case WHILE:
+            *tokens = (*tokens)->nextToken;
+            node = malloc(sizeof(ASTNode));
+            node->type = AST_LOOP;
+            node->print.value = parse_expression(tokens);
+            return node;
+
+        default:
+            printf("Error: Unrecognized token in parse_primary\n");
+            exit(1);
     }
 
     printf("Error: Unrecognized token in parse_primary\n");

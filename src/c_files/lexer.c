@@ -61,6 +61,13 @@ Token* lexerCalculator(char* input) {
             // Si print
             if (strcmp(buffer, "print") == 0) {
                 addToken(PRINT, buffer, &firstToken, &currentToken);
+            } else if (strcmp(buffer, "if") == 0) {
+                addToken(IF, buffer, &firstToken, &currentToken);
+            }
+            else if (strcmp(buffer, "else") == 0) {
+                addToken(ELSE, buffer, &firstToken, &currentToken);
+            } else if (strcmp(buffer, "while") == 0) {
+                addToken(WHILE, buffer, &firstToken, &currentToken);
             } else {
                 addToken(VARIABLE, buffer, &firstToken, &currentToken);
             }

@@ -23,7 +23,10 @@ typedef enum {
     AST_PRINT,
     AST_SCOPE_OPEN,
     AST_SCOPE_CLOSE,
-    AST_COMPARE
+    AST_COMPARE,
+    AST_IF,
+    AST_LOOP,
+    AST_BLOCK,
 } ASTNodeType;
 
 typedef struct{
@@ -61,6 +64,19 @@ typedef struct ASTNode {
         struct {
             struct ASTNode *value;
         } print;
+        struct {
+            struct ASTNode *condition;
+            struct ASTNode *if_branch;
+            struct ASTNode *else_branch;
+        } if_statement;
+        struct {
+            struct ASTNode *condition;
+            struct ASTNode *body;
+        } while_loop;
+        struct {
+            struct ASTNode **statements;
+            int statement_count;
+        } block;
     };
 } ASTNode;
 
