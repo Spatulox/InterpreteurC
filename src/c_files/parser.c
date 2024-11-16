@@ -42,6 +42,24 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
     return node;
 }
 
+ASTNode *create_string_op_node(ASTNode *left, ASTNode *right, char op) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_STRING_OP;
+    node->binary_op.op = op;
+    node->binary_op.left = left;
+    node->binary_op.right = right;
+    return node;
+}
+
+ASTNode *create_string_node(Token** tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_STRING;
+    node->number.type = STRING;
+    node->number.value.string = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
+    return node;
+}
+
 // [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
 ASTNode *parse_expression(Token **tokens) {
     if(tokens == NULL){
@@ -52,14 +70,33 @@ ASTNode *parse_expression(Token **tokens) {
         return parse_assignment(tokens);
     }
 
-    ASTNode *node = parse_term(tokens);
+    ASTNode *node;
 
-    while (*tokens != NULL && (*tokens)->type == OPERATOR &&
-           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')) {
+    // When starting with string
+    if (*tokens && (*tokens)->type == STRING_TOKEN) {
+        node = create_string_node(tokens);
+    } else {
+        node = parse_term(tokens);
+    }
+
+    while (*tokens != NULL && (*tokens)->type == OPERATOR /*&&
+           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')*/) {
         char op = (*tokens)->value[0];
         *tokens = (*tokens)->nextToken;
-        ASTNode *right = parse_term(tokens);
-        node = create_binary_op_node(node, right, op);
+
+        // After an operator
+        ASTNode *right;
+        if ((*tokens)->type == STRING_TOKEN) {
+            right = create_string_node(tokens);
+        } else {
+            right = parse_term(tokens);
+        }
+
+        if (node->type == AST_STRING || right->type == AST_STRING) {
+            node = create_string_op_node(node, right, op);
+        } else {
+            node = create_binary_op_node(node, right, op);
+        }
     }
 
     return node;
@@ -91,6 +128,12 @@ ASTNode *parse_primary(Token **tokens) {
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_VARIABLE;
         node->variable.name = strdup(token.value);
+        *tokens = (*tokens)->nextToken;
+        return node;
+    }
+    else if (token.type == STRING_TOKEN) {
+        Token *tokenTmp = *tokens;
+        ASTNode *node = create_string_node(&tokenTmp);
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PARENTHESIS_OPEN) {
@@ -142,3 +185,4 @@ ASTNode *parse_assignment(Token **tokens) {
     printf("Error: Invalid assignment syntax\n");
     exit(1);
 }
+
