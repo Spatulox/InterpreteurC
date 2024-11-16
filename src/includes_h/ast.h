@@ -12,6 +12,7 @@
 
 #include "lexer.h"
 #include <stdint.h>
+#include "../includes_h/structs.h"
 
 typedef enum {
     AST_NUMBER,
@@ -29,12 +30,14 @@ typedef struct{
     enum{
         INT,
         FLOAT,
-        STRING
+        STRING,
+        ARRAY
     } type;
     union {
         int int_value;
         float float_value;
         char* string;
+        ListVariable *array;
     } value;
 } number;
 

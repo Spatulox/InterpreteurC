@@ -95,6 +95,10 @@ number eval(ASTNode *node) {
                     result.type = STRING;
                     result.value.string = var->variable.value.stringValue;
                     return result;
+                } else if(var->variable.type == ARRAY_VAR){
+                    result.type = ARRAY;
+                    result.value.array = var->variable.value.array;
+                    return result;
                 }
             } else {
                 printf("Error: Undefined variable %s\n", node->variable.name);
@@ -202,6 +206,48 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '/':
+                    if (left.type == STRING && right.type == FLOAT) {
+                        printf("Can only split a string with an int, not a float");
+                        exit(1);
+                    }
+                    if (left.type == STRING && right.type == INT) {
+                        char *endresult = strdup(left.value.string);
+                        if (endresult == NULL) {
+                            printf("Error: Impossible to allocate memory\n");
+                            result.type = NULL_TYPE;
+                            exit(1);
+                        }
+
+                        int numParts = right.value.int_value;
+                        int length = strlen(endresult);
+                        int partSize = length / numParts;
+                        int remainder = length % numParts;
+
+                        ListVariable *resultList = NULL;
+
+                        char *start = endresult;
+                        for (int i = 0; i < numParts; i++) {
+                            int currentPartSize = partSize + (i < remainder ? 1 : 0);
+                            char *part = (char *)malloc(currentPartSize + 1);
+                            if (part == NULL) {
+                                printf("Error: Impossible to allocate memory for part\n");
+                                exit(1);
+                            }
+
+                            strncpy(part, start, currentPartSize);
+                            part[currentPartSize] = '\0';
+
+                            addVariableToList(&resultList, STRING_VAR, (Value){.stringValue = part}, "array");
+
+                            start += currentPartSize;
+                        }
+
+                        result.type = ARRAY_VAR;
+                        result.value.array = resultList;
+                        free(endresult);
+                        return result;
+                    }
+
                     if(castStringIntoNumber(&left, &right) != 0){
                         result.type = NULL_TYPE;
                         return result;
@@ -220,20 +266,17 @@ number eval(ASTNode *node) {
 
                 case '%':
                     if (left.type == STRING && right.type == STRING) {
-                        // Obtenir la longueur de la sous-chaîne (right)
                         int lenRight = (int)strlen(right.value.string);
-                        char *currPtr = left.value.string; // Pointeur pour parcourir la chaîne principale
+                        char *currPtr = left.value.string;
                         int counter = 0;
 
-                        // Parcourir la chaîne principale à la recherche de la sous-chaîne
                         while ((currPtr = strstr(currPtr, right.value.string)) != NULL) {
-                            counter++; // Incrémenter le compteur pour chaque occurrence trouvée
-                            currPtr += lenRight; // Déplacer le pointeur après l'occurrence trouvée
+                            counter++;
+                            currPtr += lenRight;
                         }
 
-                        // Préparer le résultat
                         result.type = INT;
-                        result.value.int_value = counter; // Stocker le nombre d'occurrences
+                        result.value.int_value = counter;
                         return result;
                     }
 
@@ -266,30 +309,80 @@ number eval(ASTNode *node) {
         case AST_ASSIGNMENT: {
             number value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
+
             if (existingVar) {
                 freeOldValueVariable(existingVar);
                 existingVar->variable.type = value.type;
-                if (value.type == INT) {
-                    existingVar->variable.value.intValue = value.value.int_value;
-                } else if(value.type == FLOAT) {
-                    existingVar->variable.value.floatValue = value.value.float_value;
-                } else if(value.type == STRING) {
-                    existingVar->variable.value.stringValue = strdup(value.value.string);
+                switch (value.type) {
+                    case INT:
+                        existingVar->variable.value.intValue = value.value.int_value;
+                        break;
+                    case FLOAT:
+                        existingVar->variable.value.floatValue = value.value.float_value;
+                        break;
+                    case STRING:
+                        if (existingVar->variable.value.stringValue != NULL) {
+                            free(existingVar->variable.value.stringValue);
+                        }
+                        existingVar->variable.value.stringValue = strdup(value.value.string);
+                        break;
+                    case ARRAY_VAR: {
+                        ListVariable *array = value.value.array;
+                        ListVariable *nodeInter = NULL;
+                        while (array != NULL) {
+                            Value newValue;
+                            newValue.stringValue = strdup(array->variable.value.stringValue);
+
+                            addVariableToList(&nodeInter,
+                                              array->variable.type,
+                                              newValue,
+                                              "array");
+
+                            array = array->next;
+                        }
+                        existingVar->variable.type = ARRAY_VAR;
+                        existingVar->variable.value.array = nodeInter;
+                        printListsVar(globalVariableList);
+                        break;
+                    }
+                    default:
+                        printf("ERROR: Unknown variable type for assignment\n");
+                        break;
                 }
             } else {
-                if (value.type == INT) {
-                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
-                } else if(value.type == FLOAT) {
-                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
-                } else if(value.type == STRING) {
-                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
+                switch (value.type) {
+                    case INT:
+                        addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
+                        break;
+                    case FLOAT:
+                        addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                        break;
+                    case STRING:
+                        addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
+                        break;
+                    case ARRAY_VAR: {
+                        ListVariable *array = value.value.array;
+                        ListVariable *nodeInter = NULL;
+                        while (array != NULL) {
+                            Value newValue;
+                            newValue.stringValue = strdup(array->variable.value.stringValue);
+
+                            addVariableToList(&nodeInter,
+                                              array->variable.type,
+                                              newValue,
+                                              "array");
+                            array = array->next;
+                        }
+                        addVariableToList(&globalVariableList, ARRAY_VAR, (Value) {.array = nodeInter}, node->assignment.name);
+                        printListsVar(globalVariableList);
+                        break;
+                    }
+                    default:
+                        printf("ERROR: Unknown variable type for new assignment\n");
+                        break;
                 }
             }
-            // if (value.type == INT) {
-            //     printf("Assigned variable: %s = %d\n", node->assignment.name, value.value.int_value);
-            // } else if (value.type == FLOAT) {
-            //     printf("Assigned variable: %s = %f\n", node->assignment.name, value.value.float_value);
-            // }
+
             return value;
         }
         case AST_PRINT: {
@@ -300,8 +393,36 @@ number eval(ASTNode *node) {
                 printf("PRINT -> %f\n", value.value.float_value);
             } else if(value.type == STRING) {
                 printf("PRINT -> %s\n", value.value.string);
+            } else if(value.type == ARRAY) {
+                printf("PRINT -> [");
+                ListVariable *currentArray = value.value.array;
+
+                while(currentArray != NULL) {
+                    switch (currentArray->variable.type) {
+                        case INT_VAR:
+                            printf("%d", currentArray->variable.value.intValue);
+                            break;
+                        case FLOAT_VAR:
+                            printf("%f", currentArray->variable.value.floatValue);
+                            break;
+                        case STRING_VAR:
+                            printf("%s", currentArray->variable.value.stringValue);
+                            break;
+                        case ARRAY_VAR:
+                            printf("[ ... ]"); // Indiquer qu'il y a un tableau imbriqué
+                            break;
+                        case NULL_TYPE:
+                            printf("NULL");
+                            break;
+                    }
+                    if(currentArray->next != NULL){
+                        printf(", ");
+                    }
+                    currentArray = currentArray->next; // Avancer au prochain élément de la liste
+                }
+                printf("]\n");
             } else {
-                printf("Wrong var type");
+                printf("Wrong var type\n");
             }
             return value;
         }
