@@ -19,3 +19,4 @@ print(x+", test")
 print(x+12)
 print(x-12)
 print(c)
+exit
