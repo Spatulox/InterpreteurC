@@ -170,3 +170,68 @@ Token* lexerCalculator(char* input) {
 
     return firstToken;
 }
+
+
+
+
+
+
+
+
+void printLexer(Token* firstToken) {
+    Token* currentToken = firstToken;
+    int tokenCount = 0;
+
+    printf("Contenu du Lexer :\n");
+    printf("------------------\n");
+
+    while (currentToken != NULL) {
+        printf("Token %d:\n", ++tokenCount);
+        printf("  Type: ");
+
+        switch(currentToken->type) {
+            case DEFAULT:
+                printf("DEFAULT\n");
+                break;
+            case NUMBER:
+                printf("NUMBER\n");
+                break;
+            case OPERATOR:
+                printf("OPERATOR\n");
+                break;
+            case PARENTHESIS_OPEN:
+                printf("PARENTHESIS_OPEN\n");
+                break;
+            case PARENTHESIS_CLOSE:
+                printf("PARENTHESIS_CLOSE\n");
+                break;
+            case SCOPE_OPEN:
+                printf("SCOPE_OPEN\n");
+                break;
+            case SCOPE_CLOSE:
+                printf("SCOPE_CLOSE\n");
+                break;
+            case ASSIGNMENT:
+                printf("ASSIGNMENT\n");
+                break;
+            case VARIABLE:
+                printf("VARIABLE\n");
+                break;
+            case STRING_TOKEN:
+                printf("STRING_TOKEN\n");
+                break;
+            case PRINT:
+                printf("PRINT\n");
+                break;
+            default:
+                printf("UNKNOWN\n");
+        }
+
+        printf("  Valeur: %s\n", currentToken->value);
+        printf("\n");
+
+        currentToken = currentToken->nextToken;
+    }
+
+    printf("Total des tokens: %d\n", tokenCount);
+}
