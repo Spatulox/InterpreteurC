@@ -26,6 +26,7 @@ void free_ast(ASTNode *node) {
     switch (node->type) {
         case AST_NUMBER:
         case AST_STRING:
+            free(node->number.value.string);
             break;
         case AST_VARIABLE:
             free(node->variable.name);
