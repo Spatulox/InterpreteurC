@@ -264,7 +264,8 @@ number eval(ASTNode *node) {
                             printf("Erreur d'allocation mémoire\n");
                             number nullValue;
                             nullValue.type = NULL_TYPE;
-                            return nullValue;
+                            exit(1);
+                            //return nullValue;
                         }
                         resultString[0] = '\0';
                         castNumberIntoString(left, &resultString);
@@ -287,6 +288,35 @@ number eval(ASTNode *node) {
                 }
 
                 case '-':
+
+                    if (left.type == STRING && right.type == STRING) {
+                        char *endresult = strdup(left.value.string);
+                        if (endresult == NULL) {
+                            printf("Error: Impossible to allocate memory\n");
+                            result.type = NULL_TYPE;
+                            exit(1);
+                            //return result;
+                        }
+
+                        int lenRight = (int)strlen(right.value.string);
+                        char *currPtr, *endSubStringToEndString;
+
+                        while ((currPtr = strstr(endresult, right.value.string)) != NULL) {
+                            endSubStringToEndString = currPtr + lenRight; // chaque char dans le "reste" de la string après l'occurence
+                            while (*endSubStringToEndString) {
+                                *currPtr = *endSubStringToEndString;
+                                *currPtr++;
+                                *endSubStringToEndString++;
+                            }
+                            *currPtr = '\0';
+                        }
+
+                        free(result.value.string);
+                        result.type = STRING;
+                        result.value.string = endresult;
+                        return result;
+                    }
+
                     if(castStringIntoNumber(&left, &right) != 0){
                         result.type = NULL_TYPE;
                         return result;
