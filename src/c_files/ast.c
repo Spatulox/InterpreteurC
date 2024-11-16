@@ -342,7 +342,6 @@ number eval(ASTNode *node) {
                         }
                         existingVar->variable.type = ARRAY_VAR;
                         existingVar->variable.value.array = nodeInter;
-                        printListsVar(globalVariableList);
                         break;
                     }
                     default:
@@ -374,7 +373,6 @@ number eval(ASTNode *node) {
                             array = array->next;
                         }
                         addVariableToList(&globalVariableList, ARRAY_VAR, (Value) {.array = nodeInter}, node->assignment.name);
-                        printListsVar(globalVariableList);
                         break;
                     }
                     default:
@@ -406,7 +404,7 @@ number eval(ASTNode *node) {
                             printf("%f", currentArray->variable.value.floatValue);
                             break;
                         case STRING_VAR:
-                            printf("%s", currentArray->variable.value.stringValue);
+                            printf("\"%s\"", currentArray->variable.value.stringValue);
                             break;
                         case ARRAY_VAR:
                             printf("[ ... ]"); // Indiquer qu'il y a un tableau imbriqué
