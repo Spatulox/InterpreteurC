@@ -56,6 +56,22 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 
 // ------------------------------------------------------------------------ //
 
+ListVariable* getArrayIndex(ListVariable* array, int index) {
+    ListVariable* current = array;
+    int count = 0;
+    while (current != NULL) {
+        if (count == index) {
+            return current;
+        }
+        count ++;
+        current = current->next;
+    }
+    printf("ERROR : Index out of bound");
+    exit(1);
+}
+
+// ------------------------------------------------------------------------ //
+
 void freeOldValueVariable(ListVariable* var) {
 
     if (var == NULL) {

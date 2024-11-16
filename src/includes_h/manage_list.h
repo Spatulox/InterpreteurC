@@ -14,6 +14,7 @@ void freeOldValueVariable(ListVariable* var);
 void freeVariableList(ListVariable* head);
 void deleteVariableScopeInList(ListVariable** start, int scope);
 ListVariable* searchVariableInList(ListVariable* start, char* varName);
+ListVariable* getArrayIndex(ListVariable* array, int index);
 
 
 #endif //INTERPRETEURC_MANAGE_LIST_H
