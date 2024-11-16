@@ -126,6 +126,9 @@ ASTNode *parse_term(Token **tokens) {
 
 
 ASTNode *parse_primary(Token **tokens) {
+    if(*tokens == NULL) {
+        return NULL;
+    }
     Token token = **tokens;
 
     if (token.type == NUMBER) {

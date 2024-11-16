@@ -86,7 +86,16 @@ Token* lexerCalculator(char* input) {
         }
 
         // Operator // Assignment
-        else if (strchr("+-*/%=", input[i])) {
+        else if (strchr("+-*/%=#", input[i])) {
+            if(input[i] == '#') {
+                while (input[i]!='\0') {
+                    i++;
+                }
+                if (i >= strlen(input)) {
+                    break;
+                }
+                continue;
+            }
             buffer[0] = input[i];
             buffer[1] = '\0';
             TokenType type;
