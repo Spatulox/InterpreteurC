@@ -50,6 +50,15 @@ ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
     return node;
 }
 
+ASTNode *create_string_op_node(ASTNode *left, ASTNode *right, char op) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_STRING_OP;
+    node->binary_op.op = op;
+    node->binary_op.left = left;
+    node->binary_op.right = right;
+    return node;
+}
+
 ASTNode *create_string_node(Token** tokens) {
     ASTNode *node = malloc(sizeof(ASTNode));
     node->type = AST_STRING;
@@ -64,23 +73,38 @@ ASTNode *parse_expression(Token **tokens) {
     if(tokens == NULL){
         return NULL;
     }
-    
+
     if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
         return parse_assignment(tokens);
     }
 
+    ASTNode *node;
+
+    // When starting with string
     if (*tokens && (*tokens)->type == STRING_TOKEN) {
-        return create_string_node(tokens);
+        node = create_string_node(tokens);
+    } else {
+        node = parse_term(tokens);
     }
 
-    ASTNode *node = parse_term(tokens);
-
-    while (*tokens != NULL && (*tokens)->type == OPERATOR &&
-           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')) {
+    while (*tokens != NULL && (*tokens)->type == OPERATOR /*&&
+           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')*/) {
         char op = (*tokens)->value[0];
         *tokens = (*tokens)->nextToken;
-        ASTNode *right = parse_term(tokens);
-        node = create_binary_op_node(node, right, op);
+
+        // After an operator
+        ASTNode *right;
+        if ((*tokens)->type == STRING_TOKEN) {
+            right = create_string_node(tokens);
+        } else {
+            right = parse_term(tokens);
+        }
+
+        if (node->type == AST_STRING || right->type == AST_STRING) {
+            node = create_string_op_node(node, right, op);
+        } else {
+            node = create_binary_op_node(node, right, op);
+        }
     }
 
     return node;
@@ -112,6 +136,12 @@ ASTNode *parse_primary(Token **tokens) {
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_VARIABLE;
         node->variable.name = strdup(token.value);
+        *tokens = (*tokens)->nextToken;
+        return node;
+    }
+    else if (token.type == STRING_TOKEN) {
+        Token *tokenTmp = *tokens;
+        ASTNode *node = create_string_node(&tokenTmp);
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PARENTHESIS_OPEN) {
@@ -248,6 +278,7 @@ number eval(ASTNode *node) {
                 exit(1);
             }
         }
+        case AST_STRING_OP:
         case AST_BINARY_OP: {
             number left = eval(node->binary_op.left);
             number right = eval(node->binary_op.right);
@@ -288,7 +319,6 @@ number eval(ASTNode *node) {
                 }
 
                 case '-':
-
                     if (left.type == STRING && right.type == STRING) {
                         char *endresult = strdup(left.value.string);
                         if (endresult == NULL) {
@@ -310,8 +340,6 @@ number eval(ASTNode *node) {
                             }
                             *currPtr = '\0';
                         }
-
-                        free(result.value.string);
                         result.type = STRING;
                         result.value.string = endresult;
                         return result;

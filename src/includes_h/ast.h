@@ -19,6 +19,7 @@ typedef enum {
     AST_VARIABLE,
     AST_ASSIGNMENT,
     AST_BINARY_OP,
+    AST_STRING_OP,
     AST_PRINT,
     AST_SCOPE_OPEN,
     AST_SCOPE_CLOSE
