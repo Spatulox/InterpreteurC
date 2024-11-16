@@ -56,7 +56,8 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 
 // ------------------------------------------------------------------------ //
 
-ListVariable* getArrayIndex(ListVariable* array, int index) {
+ListVariable* getArrayIndex(char* name, int index, ListVariable* varArray) {
+    ListVariable *array = searchVariableInList(varArray, name);
     ListVariable* current = array;
     int count = 0;
     while (current != NULL) {
