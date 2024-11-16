@@ -51,6 +51,15 @@ ASTNode *create_string_op_node(ASTNode *left, ASTNode *right, char op) {
     return node;
 }
 
+ASTNode *create_comp_node(ASTNode *left, ASTNode *right, char *comp) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_COMPARE;
+    node->compare.left = left;
+    node->compare.right = right;
+    node->compare.comp = comp;
+    return node;
+}
+
 ASTNode *create_string_node(Token** tokens) {
     ASTNode *node = malloc(sizeof(ASTNode));
     node->type = AST_STRING;
@@ -102,6 +111,17 @@ ASTNode *parse_expression(Token **tokens) {
     return node;
 }
 
+ASTNode *parse_comp(Token **tokens) {
+    // 1 == 2
+    ASTNode *node = parse_expression(tokens);
+    *tokens = (*tokens)->nextToken;
+    char *comp = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
+    ASTNode *right = parse_expression(tokens);
+    node = create_comp_node(node, right, comp);
+    return node;
+}
+
 ASTNode *parse_term(Token **tokens) {
     ASTNode *node = parse_primary(tokens);
 
@@ -137,6 +157,16 @@ ASTNode *parse_primary(Token **tokens) {
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == PARENTHESIS_OPEN) {
+        Token *tmp = *tokens;
+        while((*tokens)->type != PARENTHESIS_CLOSE){
+            printf("parse_primary\n");
+            *tokens = (*tokens)->nextToken;
+            if ((*tokens)->type == COMPARATOR) {
+                printf("if\n");
+                return parse_comp(&tmp);
+            }
+        }
+        *tokens = tmp;
         *tokens = (*tokens)->nextToken;
         ASTNode *node = parse_expression(tokens);
         if ((*tokens)->type == PARENTHESIS_CLOSE) {
@@ -162,6 +192,8 @@ ASTNode *parse_primary(Token **tokens) {
         node->type = AST_PRINT;
         node->print.value = parse_expression(tokens);
         return node;
+    } else if (token.type == COMPARATOR) {
+
     }
 
     printf("Error: Unrecognized token in parse_primary\n");
