@@ -27,4 +27,5 @@ typedef struct Token {
 Token* createToken(const TokenType type, const char* value);
 Token* freeAllTokens(Token* firstToken);
 Token* lexerCalculator(char* input);
+void printLexer(Token* firstToken);
 #endif //LEXER_H
