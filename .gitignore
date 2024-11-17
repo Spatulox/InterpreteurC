@@ -7,9 +7,6 @@ log.txt
 build/
 prog
 
-# File
-instructions.txt
-
 
 # Prerequisites
 *.d

@@ -1,23 +1,67 @@
+print("x=10")
 x=10
+print("y = x + 5")
+print("#commentaire")
+#commentaire
+print("fin commentaire")
 y = x + 5
+print("print(y)")
 print(y)
-# commentaire
+print("a = 3 + 4 * 2")
 a = 3 + 4 * 2
+print("b = (1 + 2) * (3 - 1)")
 b = (1 + 2) * (3 - 1)
+print("print(a)")
 print(a)
+print("print(b)")
 print(b)
+print("{")
 {
+print("c=coucou")
 c="coucou"
+print("print(c)")
 print(c)
+print("d=ou")
 d="ou"
 print("print(c-d)")
 print(c-d)
+print(c-d)
+print("c-ou")
 print(c-"ou")
+print("c/2")
+print(c/2)
+print("c%2")
+print(c%2)
+print("c+d")
 print(c+d)
+print("}")
 }
+print("x=10 => string")
 x="10"
 print(x+", test")
 print(x+12)
 print(x-12)
+print("a=1")
+a=1
+print("a++")
+a++
+print(a)
+print("a=1")
+a=1
+print("a-=a")
+a-=a
+print("a%=a")
+a%=a
+print("a/=a")
+a/=a
+print("a+=a")
+a+=a
+print(a)
+print("a=[test, 12, 1.2]")
+a=["test", 12, 1.2"]
+print("a[0]"")
+print(a[0])
+print("b=a[0]")
+print(b=a[0])
 print(c)
 exit
