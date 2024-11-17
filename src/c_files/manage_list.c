@@ -39,6 +39,23 @@ void addVariableToList(ListVariable** start, Type type, Value value, char* varNa
     }
 }
 
+void addVariableToEndOfList(ListVariable** start, Type type, Value value, char* varName) {
+    ListVariable* newNode = createVariableNode(type, value, varName);
+    if (newNode) {
+        if (*start == NULL) {
+            *start = newNode;
+        } else {
+            ListVariable* current = *start;
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    } else {
+        Log("ERROR : Impossible to add a node to the ListVariable");
+    }
+}
+
 // ------------------------------------------------------------------------ //
 
 ListVariable* searchVariableInList(ListVariable* start, char* varName) {
