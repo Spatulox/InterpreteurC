@@ -1,12 +1,11 @@
 //
-// Created by M78st on 14/11/2024.
+// Created by Marc on 14/11/2024.
 //
 
 #include "stringUtils.h"
 
 #include "includes.h"
 
-// Fonction pour tenter de convertir une chaîne en nombre
 number tryConvertToNumber(number v) {
     if (v.type != STRING) return v;
 
