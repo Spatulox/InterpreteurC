@@ -7,6 +7,9 @@ print("fin commentaire")
 y = x + 5
 print("print(y)")
 print(y)
+print("y = y^2")
+y = y^2
+print(y)
 print("a = 3 + 4 * 2")
 a = 3 + 4 * 2
 print("b = (1 + 2) * (3 - 1)")
@@ -28,6 +31,8 @@ print(c-d)
 print(c-d)
 print("c-ou")
 print(c-"ou")
+print("c=coucou")
+c="coucou"
 print("c/2")
 print(c/2)
 print("c%2")
@@ -48,13 +53,13 @@ a++
 print(a)
 print("a=1")
 a=1
-print("a-=a")
+print("a-=1")
 a-=a
-print("a%=a")
+print("a%=1")
 a%=a
-print("a/=a")
+print("a/=1")
 a/=a
-print("a+=a")
+print("a+=1")
 a+=a
 print(a)
 print("a=[test, 12, 1.2]")
