@@ -64,6 +64,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-ListVarAndListArray.drawio
 
-ListVarAndListArray.drawio.png
+# Drawio
+GestionArray.drawio
+GestionArrayVar.drawio.png
