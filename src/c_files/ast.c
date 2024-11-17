@@ -1,7 +1,7 @@
 /*////////////////////////////////////////////////////////*/
 //                                                        //   
 // Name: ast.c                                            //                     
-// Author: Enzo M                                         //  
+// Author: Enzo M / Marc                                  //
 // Date: 12/11/2024                                       //  
 // Description: ...                                       //
 //                                                        //  
@@ -16,186 +16,6 @@
 #include "manage_list.h"
 #include "global.h"
 #include "stringUtils.h"
-
-ASTNode *create_number_node(const char* value) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_NUMBER;
-
-
-    char* endptr;
-    double num = strtod(value, &endptr);
-
-    if (*endptr == '\0') {
-        // Ok
-        if (num == floor(num)) {
-            node->number.type = INT;
-            node->number.value.int_value = (int) num;
-        } else {
-            node->number.type = FLOAT;
-            node->number.value.float_value = (float) num;
-        }
-    } else {
-        printf("IMPOSSIBLE TO DETERMINE THE TYPE OF THE NUMBER (INT OF FLOAT)");
-        return 0;
-    }
-    return node;
-}
-
-ASTNode *create_binary_op_node(ASTNode *left, ASTNode *right, char op) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_BINARY_OP;
-    node->binary_op.left = left;
-    node->binary_op.right = right;
-    node->binary_op.op = op;
-    return node;
-}
-
-ASTNode *create_string_op_node(ASTNode *left, ASTNode *right, char op) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_STRING_OP;
-    node->binary_op.op = op;
-    node->binary_op.left = left;
-    node->binary_op.right = right;
-    return node;
-}
-
-ASTNode *create_string_node(Token** tokens) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_STRING;
-    node->number.type = STRING;
-    node->number.value.string = strdup((*tokens)->value);
-    *tokens = (*tokens)->nextToken;
-    return node;
-}
-
-// [{NUMBER, 1, SUITE}, {OPERATOR, +, SUITE}, {NUMBER, 2, SUITE}]
-ASTNode *parse_expression(Token **tokens) {
-    if(tokens == NULL){
-        return NULL;
-    }
-
-    if (*tokens && (*tokens)->type == VARIABLE && (*tokens)->nextToken && (*tokens)->nextToken->type == ASSIGNMENT) {
-        return parse_assignment(tokens);
-    }
-
-    ASTNode *node;
-
-    // When starting with string
-    if (*tokens && (*tokens)->type == STRING_TOKEN) {
-        node = create_string_node(tokens);
-    } else {
-        node = parse_term(tokens);
-    }
-
-    while (*tokens != NULL && (*tokens)->type == OPERATOR /*&&
-           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')*/) {
-        char op = (*tokens)->value[0];
-        *tokens = (*tokens)->nextToken;
-
-        // After an operator
-        ASTNode *right;
-        if ((*tokens)->type == STRING_TOKEN) {
-            right = create_string_node(tokens);
-        } else {
-            right = parse_term(tokens);
-        }
-
-        if (node->type == AST_STRING || right->type == AST_STRING) {
-            node = create_string_op_node(node, right, op);
-        } else {
-            node = create_binary_op_node(node, right, op);
-        }
-    }
-
-    return node;
-}
-
-ASTNode *parse_term(Token **tokens) {
-    ASTNode *node = parse_primary(tokens);
-
-    while (*tokens != NULL && (*tokens)->type == OPERATOR &&
-           ((*tokens)->value[0] == '*' || (*tokens)->value[0] == '/' || (*tokens)->value[0] == '%')) {
-        char op = (*tokens)->value[0];
-        *tokens = (*tokens)->nextToken;
-        ASTNode *right = parse_primary(tokens);
-        node = create_binary_op_node(node, right, op);
-    }
-
-    return node;
-}
-
-
-ASTNode *parse_primary(Token **tokens) {
-    if(*tokens == NULL) {
-        return NULL;
-    }
-    Token token = **tokens;
-
-    if (token.type == NUMBER) {
-        ASTNode *node = create_number_node(token.value);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == VARIABLE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_VARIABLE;
-        node->variable.name = strdup(token.value);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    }
-    else if (token.type == STRING_TOKEN) {
-        Token *tokenTmp = *tokens;
-        ASTNode *node = create_string_node(&tokenTmp);
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == PARENTHESIS_OPEN) {
-        *tokens = (*tokens)->nextToken;
-        ASTNode *node = parse_expression(tokens);
-        if ((*tokens)->type == PARENTHESIS_CLOSE) {
-            *tokens = (*tokens)->nextToken;
-        } else {
-            printf("Error: Missing closing parenthesis\n");
-            exit(1);
-        }
-        return node;
-    } else if (token.type == SCOPE_OPEN) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_SCOPE_OPEN;
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == SCOPE_CLOSE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_SCOPE_CLOSE;
-        *tokens = (*tokens)->nextToken;
-        return node;
-    } else if (token.type == PRINT) {
-        *tokens = (*tokens)->nextToken;
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_PRINT;
-        node->print.value = parse_expression(tokens);
-        return node;
-    }
-
-    printf("Error: Unrecognized token in parse_primary\n");
-    exit(1);
-}
-
-
-ASTNode *parse_assignment(Token **tokens) {
-    if ((*tokens)->type == VARIABLE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_ASSIGNMENT;
-        node->assignment.name = strdup((*tokens)->value);
-        *tokens = (*tokens)->nextToken;
-
-        if ((*tokens)->type == ASSIGNMENT) {
-            *tokens = (*tokens)->nextToken;
-            node->assignment.value = parse_expression(tokens);
-            return node;
-        }
-    }
-    printf("Error: Invalid assignment syntax\n");
-    exit(1);
-}
 
 
 
@@ -275,6 +95,10 @@ number eval(ASTNode *node) {
                     result.type = STRING;
                     result.value.string = var->variable.value.stringValue;
                     return result;
+                } else if(var->variable.type == ARRAY_VAR){
+                    result.type = ARRAY;
+                    result.value.array = var->variable.value.array;
+                    return result;
                 }
             } else {
                 printf("Error: Undefined variable %s\n", node->variable.name);
@@ -285,7 +109,6 @@ number eval(ASTNode *node) {
         case AST_BINARY_OP: {
             number left = eval(node->binary_op.left);
             number right = eval(node->binary_op.right);
-//            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+': {
                     if (left.type == STRING || right.type == STRING ) {
@@ -396,6 +219,48 @@ number eval(ASTNode *node) {
                     return result;
 
                 case '/':
+                    if (left.type == STRING && right.type == FLOAT) {
+                        printf("Can only split a string with an int, not a float");
+                        exit(1);
+                    }
+                    if (left.type == STRING && right.type == INT) {
+                        char *endresult = strdup(left.value.string);
+                        if (endresult == NULL) {
+                            printf("Error: Impossible to allocate memory\n");
+                            result.type = NULL_TYPE;
+                            exit(1);
+                        }
+
+                        int numParts = right.value.int_value;
+                        int length = strlen(endresult);
+                        int partSize = length / numParts;
+                        int remainder = length % numParts;
+
+                        ListVariable *resultList = NULL;
+
+                        char *start = endresult;
+                        for (int i = 0; i < numParts; i++) {
+                            int currentPartSize = partSize + (i < remainder ? 1 : 0);
+                            char *part = (char *)malloc(currentPartSize + 1);
+                            if (part == NULL) {
+                                printf("Error: Impossible to allocate memory for part\n");
+                                exit(1);
+                            }
+
+                            strncpy(part, start, currentPartSize);
+                            part[currentPartSize] = '\0';
+
+                            addVariableToEndOfList(&resultList, STRING_VAR, (Value){.stringValue = part}, "array");
+
+                            start += currentPartSize;
+                        }
+
+                        result.type = ARRAY_VAR;
+                        result.value.array = resultList;
+                        free(endresult);
+                        return result;
+                    }
+
                     if(castStringIntoNumber(&left, &right) != 0){
                         result.type = NULL_TYPE;
                         return result;
@@ -406,28 +271,32 @@ number eval(ASTNode *node) {
                         printf("Error: Division by zero\n");
                         exit(1);
                     }
+                    float res = (left.type == INT ? (float)left.value.int_value : left.value.float_value) /
+                                (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+
+                    if(res == floor(res)){
+                        result.type = INT;
+                        result.value.int_value = (int)res;
+                        return result;
+                    }
                     result.type = FLOAT;
-                    result.value.float_value =
-                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) /
-                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                    result.value.float_value = res;
+
                     return result;
 
                 case '%':
                     if (left.type == STRING && right.type == STRING) {
-                        // Obtenir la longueur de la sous-chaîne (right)
                         int lenRight = (int)strlen(right.value.string);
-                        char *currPtr = left.value.string; // Pointeur pour parcourir la chaîne principale
+                        char *currPtr = left.value.string;
                         int counter = 0;
 
-                        // Parcourir la chaîne principale à la recherche de la sous-chaîne
                         while ((currPtr = strstr(currPtr, right.value.string)) != NULL) {
-                            counter++; // Incrémenter le compteur pour chaque occurrence trouvée
-                            currPtr += lenRight; // Déplacer le pointeur après l'occurrence trouvée
+                            counter++;
+                            currPtr += lenRight;
                         }
 
-                        // Préparer le résultat
                         result.type = INT;
-                        result.value.int_value = counter; // Stocker le nombre d'occurrences
+                        result.value.int_value = counter;
                         return result;
                     }
 
@@ -460,30 +329,114 @@ number eval(ASTNode *node) {
         case AST_ASSIGNMENT: {
             number value = eval(node->assignment.value);
             ListVariable *existingVar = searchVariableInList(globalVariableList, node->assignment.name);
+
             if (existingVar) {
                 freeOldValueVariable(existingVar);
                 existingVar->variable.type = value.type;
-                if (value.type == INT) {
-                    existingVar->variable.value.intValue = value.value.int_value;
-                } else if(value.type == FLOAT) {
-                    existingVar->variable.value.floatValue = value.value.float_value;
-                } else if(value.type == STRING) {
-                    existingVar->variable.value.stringValue = strdup(value.value.string);
+                switch (value.type) {
+                    case INT:
+                        existingVar->variable.value.intValue = value.value.int_value;
+                        break;
+                    case FLOAT:
+                        existingVar->variable.value.floatValue = value.value.float_value;
+                        break;
+                    case STRING:
+                        if (existingVar->variable.value.stringValue != NULL) {
+                            free(existingVar->variable.value.stringValue);
+                        }
+                        existingVar->variable.value.stringValue = strdup(value.value.string);
+                        break;
+                    case ARRAY_VAR: {
+                        ListVariable *array = value.value.array;
+                        ListVariable *nodeInter = NULL;
+                        while (array != NULL) {
+                            Value newValue;
+                            switch (array->variable.type) {
+
+                                case INT_VAR:
+                                    newValue.intValue = array->variable.value.intValue;
+                                    break;
+                                case FLOAT_VAR:
+                                    newValue.floatValue = array->variable.value.floatValue;
+                                    break;
+                                case STRING_VAR:
+                                    newValue.stringValue = strdup(array->variable.value.stringValue);
+                                    break;
+                                case ARRAY_VAR:
+                                    newValue.array = array->variable.value.array;
+                                    break;
+                                case NULL_TYPE:
+                                    printf("Type NULL when assigning var");
+                                    exit(1);
+                                    break;
+                            }
+
+                            addVariableToEndOfList(&nodeInter,
+                                              array->variable.type,
+                                              newValue,
+                                              "array");
+
+                            array = array->next;
+                        }
+                        existingVar->variable.type = ARRAY_VAR;
+                        existingVar->variable.value.array = nodeInter;
+                        break;
+                    }
+                    default:
+                        printf("ERROR: Unknown variable type for assignment\n");
+                        break;
                 }
             } else {
-                if (value.type == INT) {
-                    addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
-                } else if(value.type == FLOAT) {
-                    addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
-                } else if(value.type == STRING) {
-                    addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
+                switch (value.type) {
+                    case INT:
+                        addVariableToList(&globalVariableList, INT_VAR, (Value) {.intValue = value.value.int_value}, node->assignment.name);
+                        break;
+                    case FLOAT:
+                        addVariableToList(&globalVariableList, FLOAT_VAR, (Value) {.floatValue = value.value.float_value}, node->assignment.name);
+                        break;
+                    case STRING:
+                        addVariableToList(&globalVariableList, STRING_VAR, (Value) {.stringValue = strdup(value.value.string)}, node->assignment.name);
+                        break;
+                    case ARRAY_VAR: {
+                        ListVariable *array = value.value.array;
+                        ListVariable *nodeInter = NULL;
+                        while (array != NULL) {
+                            Value newValue;
+                            switch (array->variable.type) {
+
+                                case INT_VAR:
+                                    newValue.intValue = array->variable.value.intValue;
+                                    break;
+                                case FLOAT_VAR:
+                                    newValue.floatValue = array->variable.value.floatValue;
+                                    break;
+                                case STRING_VAR:
+                                    newValue.stringValue = strdup(array->variable.value.stringValue);
+                                    break;
+                                case ARRAY_VAR:
+                                    newValue.array = array->variable.value.array;
+                                    break;
+                                case NULL_TYPE:
+                                    printf("Type NULL when assigning var");
+                                    exit(1);
+                                    break;
+                            }
+
+                            addVariableToEndOfList(&nodeInter,
+                                              array->variable.type,
+                                              newValue,
+                                              "array");
+                            array = array->next;
+                        }
+                        addVariableToEndOfList(&globalVariableList, ARRAY_VAR, (Value) {.array = nodeInter}, node->assignment.name);
+                        break;
+                    }
+                    default:
+                        printf("ERROR: Unknown variable type for new assignment : %d\n", value.type);
+                        break;
                 }
             }
-            // if (value.type == INT) {
-            //     printf("Assigned variable: %s = %d\n", node->assignment.name, value.value.int_value);
-            // } else if (value.type == FLOAT) {
-            //     printf("Assigned variable: %s = %f\n", node->assignment.name, value.value.float_value);
-            // }
+
             return value;
         }
         case AST_PRINT: {
@@ -494,8 +447,36 @@ number eval(ASTNode *node) {
                 printf("PRINT -> %f\n", value.value.float_value);
             } else if(value.type == STRING) {
                 printf("PRINT -> %s\n", value.value.string);
+            } else if(value.type == ARRAY) {
+                printf("PRINT -> [");
+                ListVariable *currentArray = value.value.array;
+
+                while(currentArray != NULL) {
+                    switch (currentArray->variable.type) {
+                        case INT_VAR:
+                            printf("%d", currentArray->variable.value.intValue);
+                            break;
+                        case FLOAT_VAR:
+                            printf("%f", currentArray->variable.value.floatValue);
+                            break;
+                        case STRING_VAR:
+                            printf("\"%s\"", currentArray->variable.value.stringValue);
+                            break;
+                        case ARRAY_VAR:
+                            printf("[ ... ]"); // Indiquer qu'il y a un tableau imbriqué
+                            break;
+                        case NULL_TYPE:
+                            printf("NULL");
+                            break;
+                    }
+                    if(currentArray->next != NULL){
+                        printf(", ");
+                    }
+                    currentArray = currentArray->next; // Avancer au prochain élément de la liste
+                }
+                printf("]\n");
             } else {
-                printf("Wrong var type");
+                printf("Wrong var type\n");
             }
             return value;
         }
@@ -503,13 +484,87 @@ number eval(ASTNode *node) {
             scope++;
             break;
         case AST_SCOPE_CLOSE:
-            deleteVariableScopeInList(globalVariableList, scope);
+            deleteVariableScopeInList(&globalVariableList, scope);
             scope--;
             if (scope < 0) {
                 printf("Error: Too many closing scopes\n");
                 exit(1);
             }
             break;
+        case AST_ARRAY_DECLARATION:
+            result.type = ARRAY_VAR;
+            ListVariable *arrayList = NULL;
+
+            for (int i = 0; i < node->array_declaration.size; i++) {
+                ASTNode *element = node->array_declaration.elements[i];
+                Value newValue;
+                Type elementType;
+
+                switch(element->type) {
+                    case AST_NUMBER:
+                        if (element->number.type == INT) {
+                            newValue.intValue = element->number.value.int_value;
+                            elementType = INT_VAR;
+                        } else if (element->number.type == FLOAT) {
+                            newValue.floatValue = element->number.value.float_value;
+                            elementType = FLOAT_VAR;
+                        }
+                        break;
+                    case AST_STRING:
+                        newValue.stringValue = strdup(element->number.value.string);
+                        elementType = STRING_VAR;
+                        break;
+                    default:
+                        printf("Unknown type ");
+                        continue;
+                }
+
+                addVariableToEndOfList(&arrayList, elementType, newValue, "array_element");
+            }
+
+            result.value.array = arrayList;
+
+            for (int i = 0; i < node->array_declaration.size; i++) {
+                free(node->array_declaration.elements[i]);
+            }
+            free(node->array_declaration.elements);
+            free(node);
+
+            return result;
+
+        case AST_ARRAY_ACCESS: {
+            number indexValue = eval(node->array_access.index);
+            if(indexValue.type != INT){
+                printf("Error : Wrong array index");
+                result.type = NULL_TYPE;
+                return result;
+            }
+            ListVariable *var = NULL;
+            var = getArrayIndex(node->array_access.name, indexValue.value.int_value, globalVariableList);
+            switch (var->variable.type) {
+
+                case INT_VAR:
+                    result.type = INT;
+                    result.value.int_value = var->variable.value.intValue;
+                    break;
+                case FLOAT_VAR:
+                    result.type = FLOAT;
+                    result.value.float_value = var->variable.value.floatValue;
+                    break;
+                case STRING_VAR:
+                    result.type = STRING;
+                    result.value.string = var->variable.value.stringValue;
+                    break;
+                case ARRAY_VAR:
+                    result.type = ARRAY;
+                    result.value.array = var->variable.value.array;
+                    break;
+                case NULL_TYPE:
+                    result.type = NULL_TYPE;
+                    break;
+            }
+            return result;
+        }
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);

@@ -1,5 +1,6 @@
 //
 // Created by Nab on 10/10/2024.
+// Updated by Nab / Marc
 //
 #include "includes.h"
 #include "lexer.h"
@@ -180,7 +181,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Parenthesis / Scope
-        else if (strchr("(){}", input[i])) {
+        else if (strchr("(){}[],", input[i])) {
             buffer[0] = input[i];
             buffer[1] = '\0';
             TokenType type;
@@ -201,9 +202,19 @@ Token* lexerCalculator(char* input) {
                 case '}':
                     type = SCOPE_CLOSE;
                     break;
+
+                case '[':
+                    type = HOOK_OPEN;
+                    break;
+                case ']':
+                    type = HOOK_CLOSE;
+                    break;
+                case ',':
+                    type = COMMA;
+                    break;
                 
                 default:
-                    printf("Error when detecting parenthesis/scope");
+                    printf("Error when detecting parenthesis/scope/hook");
                     return NULL;
             }
             addToken(type, buffer, &firstToken, &currentToken);

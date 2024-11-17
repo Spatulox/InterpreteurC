@@ -8,13 +8,17 @@ typedef enum {
     INT_VAR,
     FLOAT_VAR,
     STRING_VAR,
+    ARRAY_VAR,
     NULL_TYPE
 }Type;
+
+typedef struct ListVariable ListVariable;
 
 typedef union {
     int intValue;
     float floatValue;
     char * stringValue;
+    ListVariable *array; // Value when referencing array (main list)
 } Value;
 
 // Variable has a value and a type (to avoid wrong cast)
@@ -26,8 +30,6 @@ typedef struct {
 }Variable;
 
 // CHAINED LIST
-
-typedef struct ListVariable ListVariable;
 
 struct ListVariable {
     Variable variable;

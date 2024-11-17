@@ -1,7 +1,23 @@
 x=10
 y = x + 5
 print(y)
+# commentaire
 a = 3 + 4 * 2
-b = ((y + 2) * (3 - 1)) / 2
+b = (1 + 2) * (3 - 1)
 print(a)
 print(b)
+{
+c="coucou"
+print(c)
+d="ou"
+print("print(c-d)")
+print(c-d)
+print(c-"ou")
+print(c+d)
+}
+x="10"
+print(x+", test")
+print(x+12)
+print(x-12)
+print(c)
+exit

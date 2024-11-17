@@ -12,6 +12,7 @@
 
 #include "lexer.h"
 #include <stdint.h>
+#include "../includes_h/structs.h"
 
 typedef enum {
     AST_NUMBER,
@@ -22,19 +23,24 @@ typedef enum {
     AST_STRING_OP,
     AST_PRINT,
     AST_SCOPE_OPEN,
-    AST_SCOPE_CLOSE
+    AST_SCOPE_CLOSE,
+    AST_ARRAY_DECLARATION,
+    AST_ARRAY_ACCESS,
+    AST_ARRAY_ASSIGNMENT
 } ASTNodeType;
 
 typedef struct{
     enum{
         INT,
         FLOAT,
-        STRING
+        STRING,
+        ARRAY
     } type;
     union {
         int int_value;
         float float_value;
         char* string;
+        ListVariable *array;
     } value;
 } number;
 
@@ -52,6 +58,20 @@ typedef struct ASTNode {
             char *name;
             struct ASTNode *value;
         } assignment;
+        struct {
+            char *name;
+            struct ASTNode **elements;
+            int size;
+        } array_declaration;
+        struct {
+            char *name;
+            struct ASTNode *index;
+        } array_access;
+        struct {
+            char *name;
+            struct ASTNode *index;
+            struct ASTNode *value;
+        } array_assignment;
         struct {
             struct ASTNode *value;
         } print;

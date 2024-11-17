@@ -39,6 +39,23 @@ void addVariableToList(ListVariable** start, Type type, Value value, char* varNa
     }
 }
 
+void addVariableToEndOfList(ListVariable** start, Type type, Value value, char* varName) {
+    ListVariable* newNode = createVariableNode(type, value, varName);
+    if (newNode) {
+        if (*start == NULL) {
+            *start = newNode;
+        } else {
+            ListVariable* current = *start;
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    } else {
+        Log("ERROR : Impossible to add a node to the ListVariable");
+    }
+}
+
 // ------------------------------------------------------------------------ //
 
 ListVariable* searchVariableInList(ListVariable* start, char* varName) {
@@ -55,6 +72,24 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 }
 
 // ------------------------------------------------------------------------ //
+//void printListsVar(ListVariable* variableList);
+ListVariable* getArrayIndex(char* name, int index, ListVariable* varArray) {
+    ListVariable *array = searchVariableInList(varArray, name);
+    //printListsVar(array);
+    ListVariable* current = array->variable.value.array;
+    int count = 0;
+    while (current != NULL) {
+        if (count == index) {
+            return current;
+        }
+        count ++;
+        current = current->next;
+    }
+    printf("ERROR : Index out of bound");
+    exit(1);
+}
+
+// ------------------------------------------------------------------------ //
 
 void freeOldValueVariable(ListVariable* var) {
 
@@ -62,22 +97,40 @@ void freeOldValueVariable(ListVariable* var) {
         return;
     }
 
-    if(var->variable.type == INT_VAR){
-        var->variable.value.intValue = 0;
-    } else if(var->variable.type == FLOAT_VAR){
-        var->variable.value.floatValue = 0.0;
-    }else if(var->variable.type == STRING_VAR){
-        if(var->variable.value.stringValue != NULL){
-            free(var->variable.value.stringValue);
+    switch (var->variable.type) {
+        case INT_VAR:
+            var->variable.value.intValue = 0;
+            break;
+        case FLOAT_VAR:
+            var->variable.value.floatValue = 0.0;
+            break;
+        case STRING_VAR:
+            if (var->variable.value.stringValue != NULL) {
+                free(var->variable.value.stringValue);
+                var->variable.value.stringValue = NULL;
+            }
+            break;
+        case ARRAY_VAR: {
+            ListVariable *currentArray = var->variable.value.array;
+            while (currentArray != NULL) {
+                freeOldValueVariable(currentArray);
+                currentArray = currentArray->next;
+            }
+            break;
         }
-    } else {
-        printf("ERROR : Unknown Var type");
+        default:
+            printf("ERROR: Unknown Var type\n");
+            break;
     }
+
 }
 
 // ------------------------------------------------------------------------ //
 
 void freeVariableList(ListVariable* head) {
+    if(head == NULL){
+        return;
+    }
     while (head) {
         ListVariable* temp = head;
         head = head->next;
@@ -85,45 +138,78 @@ void freeVariableList(ListVariable* head) {
         if(temp->variable.type == STRING_VAR){
             free(temp->variable.value.stringValue);
         }
+        if(temp->variable.type == ARRAY_VAR){
+            freeVariableList(temp->variable.value.array);
+        }
         free(temp);
     }
 }
 
 // ------------------------------------------------------------------------ //
 
-void deleteVariableScopeInList(ListVariable* head, int scopeToDelete){
-    while (head) {
-        ListVariable* temp = head;
-        head = head->next;
-        if(temp->variable.scope >= scopeToDelete){
-            free(temp->variable.varName);
-            if(temp->variable.type == STRING_VAR){
-                free(temp->variable.value.stringValue);
+void deleteVariableScopeInList(ListVariable** head, int scopeToDelete) {
+    ListVariable* current = *head;
+    ListVariable* prev = NULL;
+
+    while (current) {
+        if (current->variable.scope >= scopeToDelete) {
+            if (prev == NULL) {
+                *head = current->next;
+            } else {
+                prev->next = current->next;
             }
+
+            free(current->variable.varName);
+            if (current->variable.type == STRING_VAR) {
+                free(current->variable.value.stringValue);
+            }
+            ListVariable* temp = current;
+            current = current->next;
             free(temp);
+        } else {
+            prev = current;
+            current = current->next;
         }
     }
 }
+
 
 // ------------------------------------------------------------------------ //
 
 void printListsVar(ListVariable* variableList) {
     ListVariable *currentVar = variableList;
+
+    // Vérifier si la liste est vide
+    if (currentVar == NULL) {
+        printf("La liste des variables est vide.\n");
+        return;
+    }
+
     while (currentVar != NULL) {
         printf("Name: %s, Type: ", currentVar->variable.varName);
         switch (currentVar->variable.type) {
             case INT_VAR:
-                printf("INT, Value: %d\n, Scope : %d", currentVar->variable.value.intValue, currentVar->variable.scope);
+                printf("INT, Value: %d, Scope: %d\n", currentVar->variable.value.intValue, currentVar->variable.scope);
                 break;
             case FLOAT_VAR:
-                printf("INT, Value: %f\n, Scope : %d", currentVar->variable.value.floatValue, currentVar->variable.scope);
+                printf("FLOAT, Value: %f, Scope: %d\n", currentVar->variable.value.floatValue, currentVar->variable.scope);
                 break;
             case STRING_VAR:
-                printf("CHAR, Value: %s\n, Scope : %d", currentVar->variable.value.stringValue, currentVar->variable.scope);
+                printf("STRING, Value: %s, Scope: %d\n",
+                       currentVar->variable.value.stringValue ? currentVar->variable.value.stringValue : "NULL",
+                       currentVar->variable.scope);
+                break;
+            case ARRAY_VAR:
+                printf("ARRAY:\n");
+                if (currentVar->variable.value.array != NULL) {
+                    printListsVar(currentVar->variable.value.array); // Appel récursif pour afficher le tableau
+                } else {
+                    printf("Array reference is NULL\n");
+                }
                 break;
             default:
                 printf("Unknown type\n");
         }
-        currentVar = currentVar->next;
+        currentVar = currentVar->next; // Passer à la variable suivante
     }
 }
