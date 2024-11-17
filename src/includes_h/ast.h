@@ -24,7 +24,9 @@ typedef enum {
     AST_PRINT,
     AST_SCOPE_OPEN,
     AST_SCOPE_CLOSE,
-    AST_ARRAY,
+    AST_ARRAY_DECLARATION,
+    AST_ARRAY_ACCESS,
+    AST_ARRAY_ASSIGNMENT
 } ASTNodeType;
 
 typedef struct{
@@ -56,6 +58,20 @@ typedef struct ASTNode {
             char *name;
             struct ASTNode *value;
         } assignment;
+        struct {
+            char *name;
+            struct ASTNode **elements;
+            int size;
+        } array_declaration;
+        struct {
+            char *name;
+            struct ASTNode *index;
+        } array_access;
+        struct {
+            char *name;
+            struct ASTNode *index;
+            struct ASTNode *value;
+        } array_assignment;
         struct {
             struct ASTNode *value;
         } print;

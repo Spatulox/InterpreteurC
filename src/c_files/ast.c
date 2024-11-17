@@ -41,8 +41,6 @@ void free_ast(ASTNode *node) {
             free(node->assignment.name);
             free_ast(node->assignment.value);
             break;
-        case AST_ARRAY:
-            break;
         case AST_PRINT:
             // free the print
             free_ast(node->print.value);
@@ -111,7 +109,6 @@ number eval(ASTNode *node) {
         case AST_BINARY_OP: {
             number left = eval(node->binary_op.left);
             number right = eval(node->binary_op.right);
-//            printf("Evaluating binary operation: %c with left=%d and right=%d\n", node->binary_op.op, left, right);
             switch (node->binary_op.op) {
                 case '+': {
                     if (left.type == STRING || right.type == STRING ) {
@@ -421,7 +418,7 @@ number eval(ASTNode *node) {
                         break;
                     }
                     default:
-                        printf("ERROR: Unknown variable type for new assignment\n");
+                        printf("ERROR: Unknown variable type for new assignment : %d\n", value.type);
                         break;
                 }
             }
@@ -480,9 +477,79 @@ number eval(ASTNode *node) {
                 exit(1);
             }
             break;
-        case AST_ARRAY: {
-            printf("AST_ARRAY");
-            break;
+        case AST_ARRAY_DECLARATION:
+            result.type = ARRAY_VAR;
+            ListVariable *arrayList = NULL;
+
+            for (int i = 0; i < node->array_declaration.size; i++) {
+                ASTNode *element = node->array_declaration.elements[i];
+                Value newValue;
+                Type elementType;
+
+                switch(element->type) {
+                    case AST_NUMBER:
+                        if (element->number.type == INT) {
+                            newValue.intValue = element->number.value.int_value;
+                            elementType = INT_VAR;
+                        } else if (element->number.type == FLOAT) {
+                            newValue.floatValue = element->number.value.float_value;
+                            elementType = FLOAT_VAR;
+                        }
+                        break;
+                    case AST_STRING:
+                        newValue.stringValue = strdup(element->number.value.string);
+                        elementType = STRING_VAR;
+                        break;
+                    default:
+                        printf("Unknown type ");
+                        continue;
+                }
+
+                addVariableToEndOfList(&arrayList, elementType, newValue, "array_element");
+            }
+
+            result.value.array = arrayList;
+
+            for (int i = 0; i < node->array_declaration.size; i++) {
+                free(node->array_declaration.elements[i]);
+            }
+            free(node->array_declaration.elements);
+            free(node);
+
+            return result;
+
+        case AST_ARRAY_ACCESS: {
+            number indexValue = eval(node->array_access.index);
+            if(indexValue.type != INT){
+                printf("Error : Wrong array index");
+                result.type = NULL_TYPE;
+                return result;
+            }
+            ListVariable *var = NULL;
+            var = getArrayIndex(node->array_access.name, indexValue.value.int_value, globalVariableList);
+            switch (var->variable.type) {
+
+                case INT_VAR:
+                    result.type = INT;
+                    result.value.int_value = var->variable.value.intValue;
+                    break;
+                case FLOAT_VAR:
+                    result.type = FLOAT;
+                    result.value.float_value = var->variable.value.floatValue;
+                    break;
+                case STRING_VAR:
+                    result.type = STRING;
+                    result.value.string = var->variable.value.stringValue;
+                    break;
+                case ARRAY_VAR:
+                    result.type = ARRAY;
+                    result.value.array = var->variable.value.array;
+                    break;
+                case NULL_TYPE:
+                    result.type = NULL_TYPE;
+                    break;
+            }
+            return result;
         }
         default:
             printf("Unknown node type %d\n", node->type);
