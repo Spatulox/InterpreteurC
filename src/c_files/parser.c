@@ -81,8 +81,7 @@ ASTNode *parse_expression(Token **tokens) {
         node = parse_term(tokens);
     }
 
-    while (*tokens != NULL && (*tokens)->type == OPERATOR /*&&
-           ((*tokens)->value[0] == '+' || (*tokens)->value[0] == '-')*/) {
+    while (*tokens != NULL && (*tokens)->type == OPERATOR) {
         char op = (*tokens)->value[0];
         *tokens = (*tokens)->nextToken;
 
@@ -100,7 +99,9 @@ ASTNode *parse_expression(Token **tokens) {
             node = create_binary_op_node(node, right, op);
         }
     }
-
+    if (*tokens != NULL && (*tokens)->type == SHOW_AST) {
+        showAst(node, scope, "# ");
+    }
     return node;
 }
 
@@ -191,6 +192,11 @@ ASTNode *parse_primary(Token **tokens) {
         node->type = AST_PRINT;
         node->print.value = parse_expression(tokens);
         return node;
+    } else if (token.type == SHOW_AST) {
+        *tokens = (*tokens)->nextToken;
+        ASTNode *node = malloc(sizeof(ASTNode));
+        node->type = AST_PRINT;
+        node->print.value = parse_expression(tokens);
     }
 
     printf("Error: Unrecognized token in parse_primary\n");
@@ -275,4 +281,89 @@ ASTNode *parse_assignment(Token **tokens) {
     }
 }
 
+void showAst(ASTNode *node, int level, const char* prefix) {
+    if (node == NULL) {
+        return;
+    }
 
+    // Affichage du préfixe et du type de nœud avec une indentation stylisée
+    printf("%s", prefix);
+
+    // Affichage du type de nœud
+    switch (node->type) {
+        case AST_NUMBER:
+            printf("AST_NUMBER: ");
+            if (node->number.type == INT) {
+                printf("INT: %d\n", node->number.value.int_value);
+            } else if (node->number.type == FLOAT) {
+                printf("FLOAT: %.2f\n", node->number.value.float_value);
+            } else if (node->number.type == STRING) {
+                printf("STRING: \"%s\"\n", node->number.value.string);
+            } else if (node->number.type == ARRAY) {
+                printf("ARRAY\n");
+            }
+            break;
+
+        case AST_STRING:
+            printf("AST_STRING: \"%s\"\n", node->variable.name);
+            break;
+
+        case AST_VARIABLE:
+            printf("AST_VARIABLE: %s\n", node->variable.name);
+            break;
+
+        case AST_ASSIGNMENT:
+            printf("AST_ASSIGNMENT: %s = \n", node->assignment.name);
+            showAst(node->assignment.value, level + 1, "│   ");
+            break;
+
+        case AST_BINARY_OP:
+            printf("AST_BINARY_OP: %c\n", node->binary_op.op);
+            printf("%s├─ Left operand: \n", prefix);
+            showAst(node->binary_op.left, level + 1, "│   ");
+            printf("%s└─ Right operand: \n", prefix);
+            showAst(node->binary_op.right, level + 1, "    ");
+            break;
+
+        case AST_STRING_OP:
+            printf("AST_STRING_OP: \"%s\"\n", node->variable.name);
+            break;
+
+        case AST_PRINT:
+            printf("AST_PRINT: \n");
+            showAst(node->print.value, level + 1, "│   ");
+            break;
+
+        case AST_SCOPE_OPEN:
+            printf("AST_SCOPE_OPEN\n");
+            break;
+
+        case AST_SCOPE_CLOSE:
+            printf("AST_SCOPE_CLOSE\n");
+            break;
+
+        case AST_ARRAY_DECLARATION:
+            printf("AST_ARRAY_DECLARATION: %s [\n", node->array_declaration.name);
+            for (int i = 0; i < node->array_declaration.size; i++) {
+                showAst(node->array_declaration.elements[i], level + 1, "│   ");
+            }
+            printf("%s]\n", prefix);
+            break;
+
+        case AST_ARRAY_ACCESS:
+            printf("AST_ARRAY_ACCESS: %s [\n", node->array_access.name);
+            showAst(node->array_access.index, level + 1, "│   ");
+            printf("%s]\n", prefix);
+            break;
+
+        case AST_ARRAY_ASSIGNMENT:
+            printf("AST_ARRAY_ASSIGNMENT: %s [\n", node->array_assignment.name);
+            showAst(node->array_assignment.index, level + 1, "│   ");
+            printf("%s] = \n", prefix);
+            showAst(node->array_assignment.value, level + 1, "    ");
+            break;
+
+        default:
+            printf("UNKNOWN AST NODE TYPE\n");
+    }
+}

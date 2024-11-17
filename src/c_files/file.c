@@ -108,16 +108,12 @@ int skipToEndLineChars(FILE * fp){
 
 char **readInstructionFile(const char *fileName, int *rows, int *columns) {
 
-
-    FILE *file = fopen("/dev/null", "r");
-    int osbacktrack = 1;
-
-    if (file) {
-        fclose(file); // Fermer le fichier
-    } else {
+    int osbacktrack;
+    #ifdef _WIN32
         osbacktrack = 2;
-        printf("/dev/null n'existe pas, vous êtes probablement sous Windows.\n");
-    }
+    #else
+        osbacktrack = 1;
+    #endif
 
 
     FILE *fp = fopen(fileName, "r");
@@ -188,7 +184,7 @@ char **readInstructionFile(const char *fileName, int *rows, int *columns) {
             }
         } else {
             // Sinon, on recule de charInLine  + 1 (Linux) ou + 2 (Windows) pour les \r et \n
-            if (fseek(fp, -charInLine - osbacktrack, SEEK_CUR) != 0 && fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
+            if (fseek(fp, -charInLine - osbacktrack, SEEK_CUR) != 0) {
                 Log("ERROR : Failed to set file position");
                 freeDoubleArray((void **)array, i + 1);
                 fclose(fp);
@@ -196,18 +192,13 @@ char **readInstructionFile(const char *fileName, int *rows, int *columns) {
             }
         }
 
-        if (fgets(array[i], charInLine + 1, fp) == NULL && fgets(array[i], charInLine + 2, fp) == NULL) {
+        if (fgets(array[i], charInLine + osbacktrack, fp) == NULL) {
             Log("ERROR : Failed to read line from file");
             freeDoubleArray((void **)array, i + 1);
             fclose(fp);
             return NULL;
         }
-
-        // Retire les \r et \n de fin de ligne et met un \0
-        size_t len = strlen(array[i]);
-        if (len > 0 && (array[i][len - 1] == '\n' || array[i][len - 1] == '\r')) {
-            array[i][len - 1] = '\0';
-        }
+        array[i][strcspn(array[i], "\r\n")] = '\0';
     }
 
     fclose(fp);

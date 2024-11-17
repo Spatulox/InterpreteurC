@@ -21,6 +21,7 @@ typedef enum TokenType{
     VARIABLE,
     STRING_TOKEN,
     PRINT,
+    SHOW_AST
 } TokenType;
 typedef struct Token {
     TokenType type;

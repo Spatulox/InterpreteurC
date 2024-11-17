@@ -61,15 +61,25 @@ Token* lexerCalculator(char* input) {
             // Si print
             if (strcmp(buffer, "print") == 0) {
                 addToken(PRINT, buffer, &firstToken, &currentToken);
+                continue;
+            // } else if (strcmp(buffer, "_ast_") == 0) {
+            //     addToken(SHOW_AST, NULL, &firstToken, &currentToken);  
             } else if (strcmp(buffer, "exit") == 0) {
                 freeAllTokens(firstToken);
                 printf("Exiting program\n");
                 exit(EXIT_SUCCESS);
             } else {
                 addToken(VARIABLE, buffer, &firstToken, &currentToken);
+                continue;
             }
         }
 
+         //printLexer
+         if (input[i] == '~') {
+            printLexer(firstToken);
+            i++;
+         }
+        
         // Nombre
         else if (isdigit(input[i]) ||(input[i] == '.' && isdigit(input[i+1])) || (input[i] == '-' && isdigit(input[i + 1]) && (currentToken->type != VARIABLE && currentToken->type != NUMBER))) {
             int start = i;
@@ -90,7 +100,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Operator // Assignment
-        else if (strchr("+-*/%=#^", input[i])) {
+        else if (strchr("+-*/%=#^~$", input[i])) {
             if(input[i] == '#') {
                 while (input[i]!='\0') {
                     i++;
@@ -172,9 +182,12 @@ Token* lexerCalculator(char* input) {
                 case '=':
                     type = ASSIGNMENT;
                     break;
+                case '$':
+                    type = SHOW_AST;
+                    break;
                 
                 default:
-                    printf("Error when detecting operator/assignment");
+                    printf("Error when detecting operator/assignment\n");
                     return NULL;
             }
             addToken(type, buffer, &firstToken, &currentToken);
@@ -257,29 +270,21 @@ Token* lexerCalculator(char* input) {
 
 
 
-
-
-
-void printLexer(Token* firstToken) {
-    Token* currentToken = firstToken;
-    int tokenCount = 0;
-
-    printf("Contenu du Lexer :\n");
-    printf("------------------\n");
-
-    while (currentToken != NULL) {
-        printf("Token %d:\n", ++tokenCount);
-        printf("  Type: ");
-
-        switch(currentToken->type) {
+void printLexer(Token *token) {
+    printf("\n===== Lexer Output =====\n");
+    while (token != NULL) {
+        printf("Token Type: ");
+        
+        // Affiche le type et la valeur du token
+        switch(token->type) {
             case DEFAULT:
-                printf("DEFAULT\n");
+                printf("DEFAULT       | Value: \"%s\"\n", token->value);
                 break;
             case NUMBER:
-                printf("NUMBER\n");
+                printf("NUMBER        | Value: \"%s\"\n", token->value);
                 break;
             case OPERATOR:
-                printf("OPERATOR\n");
+                printf("OPERATOR      | Value: \"%s\"\n", token->value);
                 break;
             case PARENTHESIS_OPEN:
                 printf("PARENTHESIS_OPEN\n");
@@ -297,10 +302,10 @@ void printLexer(Token* firstToken) {
                 printf("ASSIGNMENT\n");
                 break;
             case VARIABLE:
-                printf("VARIABLE\n");
+                printf("VARIABLE      | Value: \"%s\"\n", token->value);
                 break;
             case STRING_TOKEN:
-                printf("STRING_TOKEN\n");
+                printf("STRING_TOKEN  | Value: \"%s\"\n", token->value);
                 break;
             case PRINT:
                 printf("PRINT\n");
@@ -308,12 +313,13 @@ void printLexer(Token* firstToken) {
             default:
                 printf("UNKNOWN\n");
         }
+        
+        // Flèche pour indiquer le token suivant, si présent
+        if (token->nextToken != NULL) {
+            printf("    |\n    V\n");
+        }
 
-        printf("  Valeur: %s\n", currentToken->value);
-        printf("\n");
-
-        currentToken = currentToken->nextToken;
+        token = token->nextToken;
     }
-
-    printf("Total des tokens: %d\n", tokenCount);
+    printf("========================\n");
 }
