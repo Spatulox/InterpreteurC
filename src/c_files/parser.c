@@ -136,6 +136,9 @@ ASTNode *parse_array_access(Token **tokens, char *array_name) {
 }
 
 ASTNode *parse_primary(Token **tokens) {
+    if(*tokens == NULL) {
+        return NULL;
+    }
     Token token = **tokens;
 
     if (token.type == NUMBER) {
