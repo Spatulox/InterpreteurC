@@ -8,6 +8,8 @@
 /*////////////////////////////////////////////////////////*/
 
 #include "parser.h"
+#include "manage_list.h"
+#include "global.h"
 
 ASTNode *create_number_node(const char* value) {
     ASTNode *node = malloc(sizeof(ASTNode));
@@ -116,6 +118,22 @@ ASTNode *parse_term(Token **tokens) {
     return node;
 }
 
+ASTNode *parse_array_access(Token **tokens, char *array_name) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_ARRAY_ACCESS;
+    node->array_access.name = strdup(array_name);
+
+    *tokens = (*tokens)->nextToken; // '['
+    node->array_access.index = parse_expression(tokens);
+
+    if ((*tokens)->type != HOOK_CLOSE) {
+        printf("Error: Expected ']' after array index\n");
+        exit(1);
+    }
+    *tokens = (*tokens)->nextToken; // ']'
+
+    return node;
+}
 
 ASTNode *parse_primary(Token **tokens) {
     Token token = **tokens;
@@ -125,11 +143,16 @@ ASTNode *parse_primary(Token **tokens) {
         *tokens = (*tokens)->nextToken;
         return node;
     } else if (token.type == VARIABLE) {
-        ASTNode *node = malloc(sizeof(ASTNode));
-        node->type = AST_VARIABLE;
-        node->variable.name = strdup(token.value);
+
         *tokens = (*tokens)->nextToken;
-        return node;
+        if ((*tokens)->type == HOOK_OPEN) {
+            return parse_array_access(tokens, token.value);
+        } else {
+            ASTNode *node = malloc(sizeof(ASTNode));
+            node->type = AST_VARIABLE;
+            node->variable.name = strdup(token.value);
+            return node;
+        }
     }
     else if (token.type == STRING_TOKEN) {
         Token *tokenTmp = *tokens;
@@ -168,21 +191,82 @@ ASTNode *parse_primary(Token **tokens) {
     exit(1);
 }
 
+ASTNode *parse_array_declaration(Token **tokens) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->type = AST_ARRAY_DECLARATION;
+    node->array_declaration.name = strdup((*tokens)->value);
+
+    if ((*tokens)->type != HOOK_OPEN) {
+        printf("Error: Expected '[' after array assignment\n");
+        exit(1);
+    }
+    *tokens = (*tokens)->nextToken; // '['
+
+    node->array_declaration.elements = malloc(sizeof(ASTNode*) * 1);
+    int capacity = 1;
+    int size = 0;
+
+    while ((*tokens)->type != HOOK_CLOSE) {
+        if (size == capacity) {
+            capacity *= 2;
+            node->array_declaration.elements = realloc(node->array_declaration.elements, sizeof(ASTNode*) * capacity);
+        }
+        node->array_declaration.elements[size++] = parse_expression(tokens);
+
+        if ((*tokens)->type == COMMA) {
+            *tokens = (*tokens)->nextToken; // ','
+        } else if ((*tokens)->type != HOOK_CLOSE) {
+            printf("Error: Expected ',' or ']' in array declaration\n");
+            exit(1);
+        }
+    }
+    *tokens = (*tokens)->nextToken; // ']'
+
+    node->array_declaration.size = size;
+    return node;
+}
 
 ASTNode *parse_assignment(Token **tokens) {
-    if ((*tokens)->type == VARIABLE) {
+    if ((*tokens)->type != VARIABLE) {
+        printf("Error: Expected variable name at start of assignment\n");
+        exit(1);
+    }
+    char *name = strdup((*tokens)->value);
+    *tokens = (*tokens)->nextToken;
+
+    if ((*tokens)->type != ASSIGNMENT) {
+        printf("Error: Expected '=' after variable name in assignment\n");
+        exit(1);
+    }
+    *tokens = (*tokens)->nextToken; // '='
+
+    if ((*tokens)->type == HOOK_OPEN) {
         ASTNode *node = malloc(sizeof(ASTNode));
         node->type = AST_ASSIGNMENT;
-        node->assignment.name = strdup((*tokens)->value);
-        *tokens = (*tokens)->nextToken;
+        node->assignment.name = name;
+        node->assignment.value = parse_array_declaration(tokens);
+        return node;
+    } else {
+        ASTNode *right = parse_expression(tokens);
 
-        if ((*tokens)->type == ASSIGNMENT) {
-            *tokens = (*tokens)->nextToken;
-            node->assignment.value = parse_expression(tokens);
+        if (right->type == AST_ARRAY_ACCESS) {
+            ASTNode *node = malloc(sizeof(ASTNode));
+            if(node == NULL){
+                printf("Impossible to allocate memory inside parse assign\n");
+                exit(1);
+            }
+            node->type = AST_ASSIGNMENT;
+            node->assignment.name = name;
+            node->assignment.value = right;
+            return node;
+        } else {
+            ASTNode *node = malloc(sizeof(ASTNode));
+            node->type = AST_ASSIGNMENT;
+            node->assignment.name = name;
+            node->assignment.value = right;
             return node;
         }
     }
-    printf("Error: Invalid assignment syntax\n");
-    exit(1);
 }
+
 
