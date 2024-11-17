@@ -23,7 +23,8 @@ typedef enum {
     AST_STRING_OP,
     AST_PRINT,
     AST_SCOPE_OPEN,
-    AST_SCOPE_CLOSE
+    AST_SCOPE_CLOSE,
+    AST_ARRAY,
 } ASTNodeType;
 
 typedef struct{

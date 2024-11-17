@@ -41,6 +41,8 @@ void free_ast(ASTNode *node) {
             free(node->assignment.name);
             free_ast(node->assignment.value);
             break;
+        case AST_ARRAY:
+            break;
         case AST_PRINT:
             // free the print
             free_ast(node->print.value);
@@ -478,6 +480,10 @@ number eval(ASTNode *node) {
                 exit(1);
             }
             break;
+        case AST_ARRAY: {
+            printf("AST_ARRAY");
+            break;
+        }
         default:
             printf("Unknown node type %d\n", node->type);
             exit(1);
