@@ -22,4 +22,5 @@ ASTNode* parse_expression(Token **tokens);
 ASTNode* parse_term(Token **tokens);
 ASTNode* parse_primary(Token **tokens);
 ASTNode* parse_assignment(Token **tokens);
+void showAst(ASTNode *node, int level, const char* prefix);
 #endif //INTERPRETEURC_PARSER_H
