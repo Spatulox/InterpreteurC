@@ -147,7 +147,10 @@ ASTNode *parse_primary(Token **tokens) {
         return node;
     } else if (token.type == VARIABLE) {
 
-        *tokens = (*tokens)->nextToken;
+        if((*tokens)->nextToken){
+            *tokens = (*tokens)->nextToken;
+        }
+
         if ((*tokens)->type == HOOK_OPEN) {
             return parse_array_access(tokens, token.value);
         } else {
