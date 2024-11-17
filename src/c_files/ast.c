@@ -338,7 +338,25 @@ number eval(ASTNode *node) {
                         ListVariable *nodeInter = NULL;
                         while (array != NULL) {
                             Value newValue;
-                            newValue.stringValue = strdup(array->variable.value.stringValue);
+                            switch (array->variable.type) {
+
+                                case INT_VAR:
+                                    newValue.intValue = array->variable.value.intValue;
+                                    break;
+                                case FLOAT_VAR:
+                                    newValue.floatValue = array->variable.value.floatValue;
+                                    break;
+                                case STRING_VAR:
+                                    newValue.stringValue = strdup(array->variable.value.stringValue);
+                                    break;
+                                case ARRAY_VAR:
+                                    newValue.array = array->variable.value.array;
+                                    break;
+                                case NULL_TYPE:
+                                    printf("Type NULL when assigning var");
+                                    exit(1);
+                                    break;
+                            }
 
                             addVariableToList(&nodeInter,
                                               array->variable.type,
@@ -371,7 +389,25 @@ number eval(ASTNode *node) {
                         ListVariable *nodeInter = NULL;
                         while (array != NULL) {
                             Value newValue;
-                            newValue.stringValue = strdup(array->variable.value.stringValue);
+                            switch (array->variable.type) {
+
+                                case INT_VAR:
+                                    newValue.intValue = array->variable.value.intValue;
+                                    break;
+                                case FLOAT_VAR:
+                                    newValue.floatValue = array->variable.value.floatValue;
+                                    break;
+                                case STRING_VAR:
+                                    newValue.stringValue = strdup(array->variable.value.stringValue);
+                                    break;
+                                case ARRAY_VAR:
+                                    newValue.array = array->variable.value.array;
+                                    break;
+                                case NULL_TYPE:
+                                    printf("Type NULL when assigning var");
+                                    exit(1);
+                                    break;
+                            }
 
                             addVariableToList(&nodeInter,
                                               array->variable.type,
