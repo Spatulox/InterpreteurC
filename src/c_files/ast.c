@@ -360,7 +360,7 @@ number eval(ASTNode *node) {
                                     break;
                             }
 
-                            addVariableToList(&nodeInter,
+                            addVariableToEndOfList(&nodeInter,
                                               array->variable.type,
                                               newValue,
                                               "array");
@@ -411,13 +411,13 @@ number eval(ASTNode *node) {
                                     break;
                             }
 
-                            addVariableToList(&nodeInter,
+                            addVariableToEndOfList(&nodeInter,
                                               array->variable.type,
                                               newValue,
                                               "array");
                             array = array->next;
                         }
-                        addVariableToList(&globalVariableList, ARRAY_VAR, (Value) {.array = nodeInter}, node->assignment.name);
+                        addVariableToEndOfList(&globalVariableList, ARRAY_VAR, (Value) {.array = nodeInter}, node->assignment.name);
                         break;
                     }
                     default:
