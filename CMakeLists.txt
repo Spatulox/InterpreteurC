@@ -14,6 +14,7 @@ set(SOURCES
     src/c_files/lexer.c
     src/c_files/manage_list.c
     src/includes_h/ast.h
+    src/c_files/parser.c
     src/c_files/ast.c
     src/includes_h/global.h src/c_files/stringUtils.c src/includes_h/stringUtils.h)
 

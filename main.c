@@ -9,7 +9,7 @@
 #include "ast.h"
 #include "lexer.h"
 #include "structs.h"
-#include "manage_list.h"
+#include "parser.h"
 
 
 #define MAX_INSTRUCTION_SIZE 1000
