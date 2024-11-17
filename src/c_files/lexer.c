@@ -86,7 +86,7 @@ Token* lexerCalculator(char* input) {
         }
 
         // Operator // Assignment
-        else if (strchr("+-*/%=#", input[i])) {
+        else if (strchr("+-*/%=#^", input[i])) {
             if(input[i] == '#') {
                 while (input[i]!='\0') {
                     i++;
@@ -101,8 +101,8 @@ Token* lexerCalculator(char* input) {
             TokenType type;
 
             switch (input[i]) {
-                // Opérateur
-                case '+': case '-': case '*': case '/': case '%':
+                // Opérateur et commentaire
+                case '+': case '-': case '^': case '*': case '/': case '%':
                     if(input[i] == '+' && input[i+1] == '+' && currentToken->type == VARIABLE) {
                         char* currentVariable = currentToken->value;
                         addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
