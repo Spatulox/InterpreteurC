@@ -72,10 +72,11 @@ ListVariable* searchVariableInList(ListVariable* start, char* varName) {
 }
 
 // ------------------------------------------------------------------------ //
-
+//void printListsVar(ListVariable* variableList);
 ListVariable* getArrayIndex(char* name, int index, ListVariable* varArray) {
     ListVariable *array = searchVariableInList(varArray, name);
-    ListVariable* current = array;
+    //printListsVar(array);
+    ListVariable* current = array->variable.value.array;
     int count = 0;
     while (current != NULL) {
         if (count == index) {
