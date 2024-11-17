@@ -107,6 +107,19 @@ int skipToEndLineChars(FILE * fp){
 // ------------------------------------------------------------------------ //
 
 char **readInstructionFile(const char *fileName, int *rows, int *columns) {
+
+
+    FILE *file = fopen("/dev/null", "r");
+    int osbacktrack = 1;
+
+    if (file) {
+        fclose(file); // Fermer le fichier
+    } else {
+        osbacktrack = 2;
+        printf("/dev/null n'existe pas, vous êtes probablement sous Windows.\n");
+    }
+
+
     FILE *fp = fopen(fileName, "r");
     if (fp == NULL) {
         Log("ERROR : Impossible to open the file provided");
@@ -175,7 +188,7 @@ char **readInstructionFile(const char *fileName, int *rows, int *columns) {
             }
         } else {
             // Sinon, on recule de charInLine  + 1 (Linux) ou + 2 (Windows) pour les \r et \n
-            if (fseek(fp, -charInLine - 1, SEEK_CUR) != 0 && fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
+            if (fseek(fp, -charInLine - osbacktrack, SEEK_CUR) != 0 && fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
                 Log("ERROR : Failed to set file position");
                 freeDoubleArray((void **)array, i + 1);
                 fclose(fp);
