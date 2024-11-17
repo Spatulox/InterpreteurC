@@ -123,6 +123,46 @@ Token* lexerCalculator(char* input) {
                         i += 2;
                         continue;
                     }
+                    if(input[i] == '+' && input[i+1] == '=' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"+", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
+                    if(input[i] == '-' && input[i+1] == '=' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"-", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
+                    if(input[i] == '*' && input[i+1] == '=' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"*", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
+                    if(input[i] == '/' && input[i+1] == '=' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"/", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
+                    if(input[i] == '%' && input[i+1] == '=' && currentToken->type == VARIABLE) {
+                        char* currentVariable = currentToken->value;
+                        addToken(ASSIGNMENT, "=", &firstToken, &currentToken);
+                        addToken(VARIABLE, currentVariable, &firstToken, &currentToken);
+                        addToken(OPERATOR,"%", &firstToken, &currentToken);
+                        i += 2;
+                        continue;
+                    }
                     type = OPERATOR;
                     break;
 
