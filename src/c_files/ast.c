@@ -363,7 +363,21 @@ number eval(ASTNode *node) {
                             (left.type == INT ? (float)left.value.int_value : left.value.float_value) -
                             (right.type == INT ? (float)right.value.int_value : right.value.float_value);
                     return result;
-
+                case '^':
+                    if(castStringIntoNumber(&left, &right) != 0){
+                        result.type = NULL_TYPE;
+                        return result;
+                    }
+                    if (left.type == INT && right.type == INT) {
+                        result.type = INT;
+                        result.value.int_value = pow(left.value.int_value,right.value.int_value);
+                    } else {
+                        result.type = FLOAT;
+                        result.value.float_value =
+                            pow((left.type == INT ? (float)left.value.int_value : left.value.float_value),
+                            (right.type == INT ? (float)right.value.int_value : right.value.float_value));
+                    }
+                    return result;
                 case '*':
                     if(castStringIntoNumber(&left, &right) != 0){
                         result.type = NULL_TYPE;
