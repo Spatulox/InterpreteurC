@@ -4,8 +4,7 @@
 #include "includes.h"
 #include "lexer.h"
 #include "global.h"
-
-
+#include "../includes_h/log.h"
 
 Token* createToken(TokenType type, const char* value) {
     Token* newToken = malloc(sizeof(Token));
@@ -61,6 +60,9 @@ Token* lexerCalculator(char* input) {
             // Si print
             if (strcmp(buffer, "print") == 0) {
                 addToken(PRINT, buffer, &firstToken, &currentToken);
+            } else if (strcmp(buffer, "exit") == 0) {
+                printf("Exiting...");
+                exit(0);
             } else {
                 addToken(VARIABLE, buffer, &firstToken, &currentToken);
             }
