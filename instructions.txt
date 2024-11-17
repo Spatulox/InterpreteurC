@@ -53,18 +53,20 @@ a++
 print(a)
 print("a=1")
 a=1
-print("a-=1")
+print("a-=a")
 a-=a
-print("a%=1")
+a=1
+print("a%=a")
 a%=a
-print("a/=1")
+a=1
+print("a/=a")
 a/=a
-print("a+=1")
+print("a+=a")
 a+=a
 print(a)
 print("a=[test, 12, 1.2]")
-a=["test", 12, 1.2"]
-print("a[0]"")
+a=["test", 12, 1.2]
+print("a[0]")
 print(a[0])
 print("b=a[0]")
 print(b=a[0])
