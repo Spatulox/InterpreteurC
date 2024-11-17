@@ -258,10 +258,17 @@ number eval(ASTNode *node) {
                         printf("Error: Division by zero\n");
                         exit(1);
                     }
+                    float res = (left.type == INT ? (float)left.value.int_value : left.value.float_value) /
+                                (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+
+                    if(res == floor(res)){
+                        result.type = INT;
+                        result.value.int_value = (int)res;
+                        return result;
+                    }
                     result.type = FLOAT;
-                    result.value.float_value =
-                            (left.type == INT ? (float)left.value.int_value : left.value.float_value) /
-                            (right.type == INT ? (float)right.value.int_value : right.value.float_value);
+                    result.value.float_value = res;
+
                     return result;
 
                 case '%':
