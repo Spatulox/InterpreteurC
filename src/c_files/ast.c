@@ -237,7 +237,7 @@ number eval(ASTNode *node) {
                             strncpy(part, start, currentPartSize);
                             part[currentPartSize] = '\0';
 
-                            addVariableToList(&resultList, STRING_VAR, (Value){.stringValue = part}, "array");
+                            addVariableToEndOfList(&resultList, STRING_VAR, (Value){.stringValue = part}, "array");
 
                             start += currentPartSize;
                         }

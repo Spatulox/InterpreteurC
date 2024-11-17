@@ -9,6 +9,7 @@
 
 ListVariable* createVariableNode(Type type, Value value, char *name);
 void addVariableToList(ListVariable** start, Type type, Value value, char *name);
+void addVariableToEndOfList(ListVariable** start, Type type, Value value, char* varName);
 void printListsVar(ListVariable* variableList);
 void freeOldValueVariable(ListVariable* var);
 void freeVariableList(ListVariable* head);
