@@ -286,11 +286,13 @@ void showAst(ASTNode *node, int level, const char* prefix) {
         return;
     }
 
-    // Affichage du préfixe et du type de nœud avec une indentation stylisée
     printf("%s", prefix);
 
-    // Affichage du type de nœud
     switch (node->type) {
+        case AST_PRINT:
+            printf("AST_PRINT: \n");
+            showAst(node->print.value, level + 1, "│   ");
+            break;
         case AST_NUMBER:
             printf("AST_NUMBER: ");
             if (node->number.type == INT) {
@@ -305,7 +307,7 @@ void showAst(ASTNode *node, int level, const char* prefix) {
             break;
 
         case AST_STRING:
-            printf("AST_STRING: \"%s\"\n", node->variable.name);
+            printf("AST_STRING: \"%s\"\n", node->number.value.string);
             break;
 
         case AST_VARIABLE:
@@ -326,12 +328,11 @@ void showAst(ASTNode *node, int level, const char* prefix) {
             break;
 
         case AST_STRING_OP:
-            printf("AST_STRING_OP: \"%s\"\n", node->variable.name);
-            break;
-
-        case AST_PRINT:
-            printf("AST_PRINT: \n");
-            showAst(node->print.value, level + 1, "│   ");
+            printf("AST_STRING_OP: %c\n", node->binary_op.op);
+            printf("%s├─ Left operand: \n", prefix);
+            showAst(node->binary_op.left, level + 1, "│   ");
+            printf("%s└─ Right operand: \n", prefix);
+            showAst(node->binary_op.right, level + 1, "    ");
             break;
 
         case AST_SCOPE_OPEN:
