@@ -174,8 +174,8 @@ char **readInstructionFile(const char *fileName, int *rows, int *columns) {
                 return NULL;
             }
         } else {
-            // Sinon, on recule de charInLine + 2 pour les \r et \n
-            if (fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
+            // Sinon, on recule de charInLine  + 1 (Linux) ou + 2 (Windows) pour les \r et \n
+            if (fseek(fp, -charInLine - 1, SEEK_CUR) != 0 && fseek(fp, -charInLine - 2, SEEK_CUR) != 0) {
                 Log("ERROR : Failed to set file position");
                 freeDoubleArray((void **)array, i + 1);
                 fclose(fp);
@@ -183,7 +183,7 @@ char **readInstructionFile(const char *fileName, int *rows, int *columns) {
             }
         }
 
-        if (fgets(array[i], charInLine + 2, fp) == NULL) {
+        if (fgets(array[i], charInLine + 1, fp) == NULL && fgets(array[i], charInLine + 2, fp) == NULL) {
             Log("ERROR : Failed to read line from file");
             freeDoubleArray((void **)array, i + 1);
             fclose(fp);

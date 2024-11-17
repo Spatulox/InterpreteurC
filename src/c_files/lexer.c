@@ -62,8 +62,9 @@ Token* lexerCalculator(char* input) {
             if (strcmp(buffer, "print") == 0) {
                 addToken(PRINT, buffer, &firstToken, &currentToken);
             } else if (strcmp(buffer, "exit") == 0) {
-                printf("Exiting...");
-                exit(0);
+                freeAllTokens(firstToken);
+                printf("Exiting program\n");
+                exit(EXIT_SUCCESS);
             } else {
                 addToken(VARIABLE, buffer, &firstToken, &currentToken);
             }
@@ -233,7 +234,8 @@ Token* lexerCalculator(char* input) {
 
             if(input[i] == '\0') {
                 printf("Error: Missing closing quote\n");
-                exit(1);
+                freeAllTokens(firstToken);
+                exit(EXIT_FAILURE);
             }
             start++;
             strncpy(buffer, &input[start], i - start);
