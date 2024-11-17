@@ -36,6 +36,7 @@ ASTNode *create_number_node(const char* value) {
         }
     } else {
         printf("IMPOSSIBLE TO DETERMINE THE TYPE OF THE NUMBER (INT OF FLOAT)");
+        free(node);
         return 0;
     }
     return node;
@@ -154,7 +155,8 @@ ASTNode *parse_primary(Token **tokens) {
             *tokens = (*tokens)->nextToken;
         } else {
             printf("Error: Missing closing parenthesis\n");
-            exit(1);
+            freeAllTokens(*tokens);
+            exit(EXIT_FAILURE);
         }
         return node;
     } else if (token.type == SCOPE_OPEN) {
@@ -176,7 +178,8 @@ ASTNode *parse_primary(Token **tokens) {
     }
 
     printf("Error: Unrecognized token in parse_primary\n");
-    exit(1);
+    freeAllTokens(*tokens);
+    exit(EXIT_FAILURE);
 }
 
 
@@ -194,7 +197,8 @@ ASTNode *parse_assignment(Token **tokens) {
         }
     }
     printf("Error: Invalid assignment syntax\n");
-    exit(1);
+    freeAllTokens(*tokens);
+    exit(EXIT_FAILURE);
 }
 
 
@@ -237,7 +241,7 @@ void free_ast(ASTNode *node) {
 number eval(ASTNode *node) {
     if (node == NULL) {
         printf("Error: NULL node\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     number result;
     switch (node->type) {
@@ -258,7 +262,8 @@ number eval(ASTNode *node) {
         case AST_VARIABLE: {
             if (node->variable.name == NULL) {
                 printf("Error: Variable name is NULL\n");
-                exit(1);
+                free_ast(node);
+                exit(EXIT_FAILURE);
             }
             ListVariable *var = searchVariableInList(globalVariableList, node->variable.name);
             if (var) {
@@ -278,7 +283,8 @@ number eval(ASTNode *node) {
                 }
             } else {
                 printf("Error: Undefined variable %s\n", node->variable.name);
-                exit(1);
+                free_ast(node);
+                exit(EXIT_FAILURE);
             }
         }
         case AST_STRING_OP:
@@ -298,8 +304,8 @@ number eval(ASTNode *node) {
                             printf("Erreur d'allocation mémoire\n");
                             number nullValue;
                             nullValue.type = NULL_TYPE;
-                            exit(1);
-                            //return nullValue;
+                            free_ast(node);
+                            exit(EXIT_FAILURE);
                         }
                         resultString[0] = '\0';
                         castNumberIntoString(left, &resultString);
@@ -327,8 +333,8 @@ number eval(ASTNode *node) {
                         if (endresult == NULL) {
                             printf("Error: Impossible to allocate memory\n");
                             result.type = NULL_TYPE;
-                            exit(1);
-                            //return result;
+                            free_ast(node);
+                            exit(EXIT_FAILURE);
                         }
 
                         int lenRight = (int)strlen(right.value.string);
@@ -404,7 +410,8 @@ number eval(ASTNode *node) {
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Division by zero\n");
-                        exit(1);
+                        free_ast(node);
+                        exit(EXIT_FAILURE);
                     }
                     result.type = FLOAT;
                     result.value.float_value =
@@ -439,7 +446,8 @@ number eval(ASTNode *node) {
                     if ((right.type == INT && right.value.int_value == 0) ||
                         (right.type == FLOAT && right.value.float_value == 0.0f)) {
                         printf("Error: Modulo by zero\n");
-                        exit(1);
+                        free_ast(node);
+                        exit(EXIT_FAILURE);
                     }
                     if (left.type == INT && right.type == INT) {
                         result.type = INT;
@@ -454,7 +462,8 @@ number eval(ASTNode *node) {
 
                 default:
                     printf("Unknown operator %c\n", node->binary_op.op);
-                    exit(1);
+                    free_ast(node);
+                    exit(EXIT_FAILURE);
             }
         }
         case AST_ASSIGNMENT: {
@@ -507,11 +516,13 @@ number eval(ASTNode *node) {
             scope--;
             if (scope < 0) {
                 printf("Error: Too many closing scopes\n");
-                exit(1);
+                free_ast(node);
+                exit(EXIT_FAILURE);
             }
             break;
         default:
             printf("Unknown node type %d\n", node->type);
-            exit(1);
+            free_ast(node);
+            exit(EXIT_FAILURE);
     }
 }
