@@ -3,6 +3,7 @@
 ## Interpreteur only programing in C
 > - version : C11
 > - Only with Standard Libraries
+> - CMake 3.23
 
 ## Compilation
 
