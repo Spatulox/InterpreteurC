@@ -20,10 +20,12 @@ make
 ```
 
 ## Basic Functionnalities
-> - All basic operation (+, -, *, /, %)
-> - Advanced operation (+=, -=, *=, /=, %=)
+> - All basic operation (+, -, *, /, %, ^)
+> - Advanced operation (+=, -=, *=, /=, %=, var++, var--)
+> - Comments (with "#")
 > - Different type : int, float, string
 > - "print" function
+> - "exit" function
 > - Variables
 > - Variables scope
 > - Basic array (declaration, index access) (can't change an index value)
