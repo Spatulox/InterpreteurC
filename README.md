@@ -19,7 +19,7 @@ make
 ../prog
 ```
 
-## Functionnalities
+## Basic Functionnalities
 > - All basic operation (+, -, *, /, %)
 > - Advanced operation (+=, -=, *=, /=, %=)
 > - Different type : int, float, string
@@ -28,6 +28,18 @@ make
 > - Variables scope
 > - Basic array (declaration, index access) (can't change an index value)
 > - Different type in one array (int, float, string)
+
+## Weird functionnalities :
+### String
+> - a="test"
+> - print(a/2) => ["te", "st"] (split the word in two)
+>
+> - a="test"
+> - print(a%2"t") => 2 (because two "t" in "test")
+>
+> - a="test"
+> - print(a-"t") => es (delete all the "t" in the string)
+>
 > - Print the corresponding AST by adding "$" at the end of the line
 > - Print the corresponding Lexer by adding "~" at the end of the line
 
